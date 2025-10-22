@@ -1,5 +1,3 @@
-// backend/controllers/reportController.ts
-
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
 
@@ -37,7 +35,7 @@ export const getTrialBalance = async (req: Request, res: Response) => {
 
     // Add opening balances
     const accounts = await prisma.account.findMany();
-    accounts.forEach((account) => {
+    accounts.forEach((account: any) => {
       if (account.openingBalance !== 0) {
         const existing = balances.get(account.id) || {
           accountId: account.id,
@@ -61,9 +59,8 @@ export const getTrialBalance = async (req: Request, res: Response) => {
     });
 
     const trialBalance = Array.from(balances.values());
-    
-    const totalDebit = trialBalance.reduce((sum, acc) => sum + acc.debit, 0);
-    const totalCredit = trialBalance.reduce((sum, acc) => sum + acc.credit, 0);
+    const totalDebit = trialBalance.reduce((sum: any, acc: any) => sum + acc.debit, 0);
+    const totalCredit = trialBalance.reduce((sum: any, acc: any) => sum + acc.credit, 0);
 
     res.json({
       trialBalance,
@@ -81,7 +78,6 @@ export const getTrialBalance = async (req: Request, res: Response) => {
 export const getProfitAndLoss = async (req: Request, res: Response) => {
   try {
     const { startDate, endDate } = req.query;
-    
     const start = startDate ? new Date(startDate as string) : new Date(new Date().getFullYear(), 0, 1);
     const end = endDate ? new Date(endDate as string) : new Date();
 
@@ -101,7 +97,7 @@ export const getProfitAndLoss = async (req: Request, res: Response) => {
     // Group by account
     const accountTotals = new Map<string, any>();
 
-    entries.forEach((entry) => {
+    entries.forEach((entry: any) => {
       const existing = accountTotals.get(entry.accountId) || {
         accountId: entry.accountId,
         accountName: entry.account.name,
@@ -118,7 +114,7 @@ export const getProfitAndLoss = async (req: Request, res: Response) => {
       accountTotals.set(entry.accountId, existing);
     });
 
-    accountTotals.forEach((account) => {
+    accountTotals.forEach((account: any) => {
       if (account.accountType === 'INCOME' && account.amount > 0) {
         incomeAccounts.push(account);
         totalIncome += account.amount;
@@ -149,7 +145,7 @@ export const getProfitAndLoss = async (req: Request, res: Response) => {
 export const getGSTReport = async (req: Request, res: Response) => {
   try {
     const { month, year } = req.query;
-    
+
     const targetMonth = month ? parseInt(month as string) - 1 : new Date().getMonth();
     const targetYear = year ? parseInt(year as string) : new Date().getFullYear();
 
@@ -170,8 +166,8 @@ export const getGSTReport = async (req: Request, res: Response) => {
     const salesVouchers: any[] = [];
     const purchaseVouchers: any[] = [];
 
-    vouchers.forEach((voucher) => {
-      const totalGST = voucher.items.reduce((sum, item) => sum + item.gstAmount, 0);
+    vouchers.forEach((voucher: any) => {
+      const totalGST = voucher.items.reduce((sum: any, item: any) => sum + item.gstAmount, 0);
 
       if (voucher.type === 'SALES') {
         outputGST += totalGST;
@@ -235,10 +231,10 @@ export const getOutstandingReport = async (req: Request, res: Response) => {
     let totalReceivable = 0;
     let totalPayable = 0;
 
-    parties.forEach((party) => {
+    parties.forEach((party: any) => {
       let balance = party.openingBalance;
-      
-      party.ledgerEntries.forEach((entry) => {
+
+      party.ledgerEntries.forEach((entry: any) => {
         balance += entry.debit - entry.credit;
       });
 
@@ -251,11 +247,9 @@ export const getOutstandingReport = async (req: Request, res: Response) => {
         };
 
         if (balance > 0) {
-          // Positive balance = They owe us (Receivable)
           receivables.push(partyData);
           totalReceivable += balance;
         } else {
-          // Negative balance = We owe them (Payable)
           payables.push(partyData);
           totalPayable += Math.abs(balance);
         }
@@ -315,7 +309,7 @@ export const getLedger = async (req: Request, res: Response) => {
 
     // Calculate running balance
     let balance = account.openingBalance;
-    const ledgerEntries = entries.map((entry) => {
+    const ledgerEntries = entries.map((entry: any) => {
       balance += entry.debit - entry.credit;
       return {
         ...entry,

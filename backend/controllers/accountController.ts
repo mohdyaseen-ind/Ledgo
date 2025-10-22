@@ -1,18 +1,10 @@
-// backend/controllers/accountController.ts
-
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
 
-
-interface LedgerEntry {
-  debit: number;
-  credit: number;
-  // other fields if needed
-}
 // GET ALL ACCOUNTS
 export const getAccounts = async (req: Request, res: Response) => {
   try {
-    const { type, isParty } = req.query;
+    const { type, isParty }: any = req.query;
 
     const where: any = {};
     if (type) where.type = type;
@@ -33,7 +25,7 @@ export const getAccounts = async (req: Request, res: Response) => {
 // GET SINGLE ACCOUNT
 export const getAccount = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id }: any = req.params;
 
     const account = await prisma.account.findUnique({
       where: { id },
@@ -55,7 +47,7 @@ export const getAccount = async (req: Request, res: Response) => {
 
     // Calculate balance
     let balance = account.openingBalance;
-    account.ledgerEntries.forEach((entry: LedgerEntry) => {
+    account.ledgerEntries.forEach((entry: any) => {
       balance += entry.debit - entry.credit;
     });
 
@@ -69,7 +61,7 @@ export const getAccount = async (req: Request, res: Response) => {
 // CREATE ACCOUNT
 export const createAccount = async (req: Request, res: Response) => {
   try {
-    const { name, type, isParty, gstNumber, openingBalance } = req.body;
+    const { name, type, isParty, gstNumber, openingBalance }: any = req.body;
 
     const account = await prisma.account.create({
       data: {
