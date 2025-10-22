@@ -21,7 +21,7 @@ export const getTrialBalance = async (req: Request, res: Response) => {
     // Group by account
     const balances = new Map<string, any>();
 
-    entries.forEach((entry) => {
+    entries.forEach((entry: any) => {
       const existing = balances.get(entry.accountId) || {
         accountId: entry.accountId,
         accountName: entry.account.name,

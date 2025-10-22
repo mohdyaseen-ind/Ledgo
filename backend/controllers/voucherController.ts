@@ -154,7 +154,7 @@ export const createVoucher = async (req: Request, res: Response) => {
 
       // Create ledger entries
       await tx.ledgerEntry.createMany({
-        data: ledgerEntries.map((entry) => ({
+        data: ledgerEntries.map((entry: any) => ({
           voucherId: newVoucher.id,
           accountId: entry.accountId,
           date: new Date(date),
