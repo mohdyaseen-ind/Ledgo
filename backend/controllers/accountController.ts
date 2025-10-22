@@ -3,6 +3,12 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
 
+
+interface LedgerEntry {
+  debit: number;
+  credit: number;
+  // other fields if needed
+}
 // GET ALL ACCOUNTS
 export const getAccounts = async (req: Request, res: Response) => {
   try {
@@ -49,7 +55,7 @@ export const getAccount = async (req: Request, res: Response) => {
 
     // Calculate balance
     let balance = account.openingBalance;
-    account.ledgerEntries.forEach((entry) => {
+    account.ledgerEntries.forEach((entry: LedgerEntry) => {
       balance += entry.debit - entry.credit;
     });
 
