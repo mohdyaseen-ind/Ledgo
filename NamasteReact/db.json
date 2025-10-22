@@ -1,0 +1,24 @@
+{
+    "restaurants": [
+      { "id": "1", "name": "Biryani Blues", "description": "Authentic Hyderabadi Biryani", "price": 220 },
+      { "id": "2", "name": "Haldiram's", "description": "Indian sweets, snacks & meals", "price": 180 },
+      { "id": "3", "name": "Domino's Pizza", "description": "Freshly baked cheesy pizzas", "price": 250 },
+      { "id": "4", "name": "Wow! Momo", "description": "Tandoori, steamed and pan-fried momos", "price": 150 },
+      { "id": "5", "name": "The Belgian Waffle Co.", "description": "Delicious waffles and dessert", "price": 120 },
+      { "id": "6", "name": "Barbeque Nation", "description": "Grilled starters & Indian buffet", "price": 350 },
+      { "id": "7", "name": "Gulab", "description": "North Indian cuisine and sweets", "price": 190 },
+      { "id": "8", "name": "McDonald's", "description": "Burgers, fries and more", "price": 160 },
+      { "id": "9", "name": "Theobroma", "description": "Brownies, desserts & sandwiches", "price": 200 },
+      { "id": "10", "name": "Nando's", "description": "Flame-grilled peri-peri chicken", "price": 300 },
+      { "id": "11", "name": "KFC", "description": "Crispy fried chicken & burgers", "price": 220 },
+      { "id": "12", "name": "La Pino'z Pizza", "description": "Loaded cheesy pizzas", "price": 230 },
+      { "id": "13", "name": "Behrouz Biryani", "description": "Royal dum biryanis", "price": 270 },
+      { "id": "14", "name": "Faasos", "description": "Wraps, meals & more", "price": 190 },
+      { "id": "15", "name": "Subway", "description": "Custom sandwiches and salads", "price": 160 },
+      { "id": "16", "name": "Wendy’s", "description": "Burgers, rice meals & more", "price": 210 },
+      { "id": "17", "name": "Chaayos", "description": "Tea and snacks", "price": 130 },
+      { "id": "18", "name": "RollsKing", "description": "Kathi rolls and combos", "price": 140 },
+      { "id": "19", "name": "Starbucks", "description": "Coffee, beverages and bakery", "price": 250 },
+      { "id": "20", "name": "Burger King", "description": "Flame-grilled burgers and fries", "price": 200 }
+    ]
+}

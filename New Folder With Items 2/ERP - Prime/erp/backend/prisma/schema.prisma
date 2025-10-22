@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Users table - who's using the system
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  role      String   // "ACCOUNTANT" or "MANAGER" (just plain string)
+  createdAt DateTime @default(now())
+}
+
+// Accounts table - Chart of Accounts (Bank, Sales, Expenses, etc.)
+model Account {
+  id              String    @id @default(cuid())
+  name            String
+  type            String    // "ASSET", "LIABILITY", "INCOME", "EXPENSE"
+  isParty         Boolean   @default(false) // true for customers/suppliers
+  gstNumber       String?
+  openingBalance  Float     @default(0)
+  createdAt       DateTime  @default(now())
+  
+  // Relations (connections to other tables)
+  ledgerEntries   LedgerEntry[]
+  vouchersAsParty Voucher[]
+}
+
+// Vouchers table - All transactions (Sales, Purchase, Payment, Receipt)
+model Voucher {
+  id            String    @id @default(cuid())
+  voucherNumber String    @unique
+  type          String    // "SALES", "PURCHASE", "PAYMENT", "RECEIPT"
+  date          DateTime
+  partyId       String?   // Which customer/supplier (optional for direct expenses)
+  narration     String?   // Description/notes
+  totalAmount   Float
+  createdBy     String?   // Which user created this
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  isDeleted     Boolean   @default(false)
+  deletedAt     DateTime?
+  
+  // Relations
+  party         Account?  @relation(fields: [partyId], references: [id])
+  items         VoucherItem[]
+  ledgerEntries LedgerEntry[]
+}
+
+// VoucherItem table - Line items in a voucher (for multi-line invoices)
+model VoucherItem {
+  id          String   @id @default(cuid())
+  voucherId   String
+  description String
+  quantity    Float
+  rate        Float
+  amount      Float    // quantity * rate
+  gstRate     Float    // 0, 5, 12, 18, or 28
+  gstAmount   Float    // calculated GST
+  total       Float    // amount + gstAmount
+  
+  // Relations
+  voucher     Voucher  @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+}
+
+// LedgerEntry table - The actual accounting entries (double-entry bookkeeping)
+model LedgerEntry {
+  id        String   @id @default(cuid())
+  voucherId String
+  accountId String
+  date      DateTime
+  debit     Float    @default(0)
+  credit    Float    @default(0)
+  createdAt DateTime @default(now())
+  
+  // Relations
+  voucher   Voucher  @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  account   Account  @relation(fields: [accountId], references: [id])
+}
