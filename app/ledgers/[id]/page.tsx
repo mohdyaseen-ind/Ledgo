@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency, formatDate, formatDateInput } from '@/lib/utils';
+import { exportLedgerToExcel } from '@/backend/lib/export';
 
 interface LedgerEntry {
   id: string;
@@ -143,7 +144,11 @@ export default function LedgerDetailPage() {
           <Button variant="secondary" size="sm">
             Export PDF
           </Button>
-          <Button variant="secondary" size="sm">
+          <Button 
+            variant="secondary" 
+            size="sm"
+            onClick={() => exportLedgerToExcel(account.name, entries, openingBalance, closingBalance)}
+          >
             Export Excel
           </Button>
         </div>

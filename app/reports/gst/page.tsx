@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { exportGSTToExcel } from '@/backend/lib/export';
 
 interface GSTVoucher {
   voucherNumber: string;
@@ -114,8 +115,12 @@ export default function GSTPage() {
           <Button variant="secondary" size="sm">
             Export PDF
           </Button>
-          <Button variant="secondary" size="sm">
-            Download GSTR-3B JSON
+          <Button 
+            variant="secondary" 
+            size="sm"
+            onClick={() => exportGSTToExcel(salesVouchers, purchaseVouchers, outputGST, inputGST, netGST, selectedMonth, selectedYear)}
+          >
+            Export Excel
           </Button>
         </div>
       </div>

@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { toggleMode } from '@/store/slices/userSlice';
 import { Button } from './ui/button';
 import Link from 'next/link';
+import { ThemeToggle } from './ThemeToggle';
 
 export default function Header() {
   const dispatch = useAppDispatch();
@@ -78,6 +79,9 @@ export default function Header() {
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
+            {/* Theme toggle */}
+            <ThemeToggle />
+            
             {/* Mode indicator */}
             <div className="text-sm text-gray-600">
               <span className="font-medium">{currentUser?.name}</span>

@@ -173,7 +173,14 @@ export default function CommandPalette() {
   useEffect(() => {
     const handleGlobalShortcuts = (e: KeyboardEvent) => {
       // Don't trigger if command palette is open or user is typing
-      if (open || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      const target = e.target as HTMLElement;
+      if (
+        open || 
+        target instanceof HTMLInputElement || 
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target.isContentEditable
+      ) {
         return;
       }
 

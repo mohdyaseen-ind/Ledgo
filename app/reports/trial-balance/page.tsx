@@ -7,6 +7,7 @@ import { reportsAPI } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
+import { exportTrialBalanceToExcel } from '@/backend/lib/export';
 
 interface TrialBalanceEntry {
   accountId: string;
@@ -78,9 +79,13 @@ export default function TrialBalancePage() {
           <Button variant="secondary" size="sm">
             Export PDF
           </Button>
-          <Button variant="secondary" size="sm">
+          <Button 
+            variant="secondary" 
+            size="sm"
+            onClick={() => exportTrialBalanceToExcel(trialBalance, totalDebit, totalCredit)}
+          >
             Export Excel
-          </Button>
+        </Button>
         </div>
       </div>
 

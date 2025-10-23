@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency, formatDateInput } from '@/lib/utils';
+import { exportPLToExcel } from '@/backend/lib/export';
 
 interface PLAccount {
   accountId: string;
@@ -100,7 +101,11 @@ export default function PLPage() {
           <Button variant="secondary" size="sm">
             Export PDF
           </Button>
-          <Button variant="secondary" size="sm">
+          <Button 
+            variant="secondary" 
+            size="sm"
+            onClick={() => exportPLToExcel(incomeAccounts, expenseAccounts, totalIncome, totalExpenses, netProfit)}
+          >
             Export Excel
           </Button>
         </div>

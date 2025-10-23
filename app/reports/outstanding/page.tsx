@@ -7,6 +7,7 @@ import { reportsAPI } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
+import { exportOutstandingToExcel } from '@/backend/lib/export';
 
 interface Party {
   id: string;
@@ -78,7 +79,11 @@ export default function OutstandingPage() {
           <Button variant="secondary" size="sm">
             Export PDF
           </Button>
-          <Button variant="secondary" size="sm">
+          <Button 
+            variant="secondary" 
+            size="sm"
+            onClick={() => exportOutstandingToExcel(receivables, payables, totalReceivable, totalPayable)}
+          >
             Export Excel
           </Button>
         </div>
