@@ -1,5 +1,3 @@
-// app/page.tsx
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -36,7 +34,7 @@ export default function Home() {
         {/* Hero Section */}
         <div className="max-w-7xl mx-auto px-4 pt-20 pb-16 text-center">
           {/* Badge */}
-          <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-lg rounded-full text-white mb-8 animate-fade-in-up">
+          <div className="inline-flex items-center px-4 py bg-white/20 backdrop-blur-lg rounded-full text-white mb-8 animate-fade-in-up">
             <span className="animate-pulse mr-2">⚡</span>
             <span className="font-semibold">The Future of ERP is Here</span>
           </div>
