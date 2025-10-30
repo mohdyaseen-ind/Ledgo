@@ -10,7 +10,14 @@ dotenv.config()
 const app = express();
 const PORT =  process.env.PORT || 3001;
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:3001",
+    "https://ledgo-erp.vercel.app", 
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+}));
 app.use(express.json());
 
 app.use('/api/vouchers', voucherRoutes);
