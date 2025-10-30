@@ -3,9 +3,12 @@ import cors from 'cors';
 import voucherRoutes from './routes/voucherRoutes';
 import accountRoutes from './routes/accountRoutes';
 import reportRoutes from './routes/reportRoutes';
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const app = express();
-const PORT = 3001;
+const PORT =  process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
