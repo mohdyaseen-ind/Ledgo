@@ -5,9 +5,10 @@
     "main": "server.ts",
     "scripts": {
         "start": "node dist/server.js",
-        "build": "tsc",
         "dev": "nodemon --exec ts-node server.ts",
-        "postinstall": "prisma generate"
+        "postinstall": "prisma generate",
+        "build": "npm i && prisma generate && prisma migrate deploy && next build"
+
     },
     "dependencies": {
         "@prisma/client": "^5.7.1",
