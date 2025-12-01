@@ -7,6 +7,10 @@ interface User {
   name: string;
   email: string;
   role: 'ACCOUNTANT' | 'MANAGER';
+  phone?: string;
+  address?: string;
+  bio?: string;
+  avatarUrl?: string;
 }
 
 interface UserState {
@@ -15,12 +19,7 @@ interface UserState {
 }
 
 const initialState: UserState = {
-  currentUser: {
-    id: '1',
-    name: 'Rajesh Kumar',
-    email: 'accountant@company.com',
-    role: 'ACCOUNTANT',
-  },
+  currentUser: null,
   mode: 'accountant',
 };
 

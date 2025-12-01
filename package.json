@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "backend": "nodemon --exec ts-node backend/server.ts"
+    "backend": "cd backend && npm run dev"
   },
   "dependencies": {
     "@prisma/client": "^6.17.1",

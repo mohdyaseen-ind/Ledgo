@@ -59,22 +59,30 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-fade-in-up animation-delay-800">
             <Button
               size="lg"
-              onClick={() => router.push(mode === 'manager' ? '/dashboard' : '/vouchers')}
+              onClick={() => {
+                if (currentUser) {
+                  router.push(mode === 'manager' ? '/dashboard' : '/vouchers');
+                } else {
+                  router.push('/login');
+                }
+              }}
               className="text-lg px-8 py-6 bg-white text-purple-600 hover:bg-gray-100 hover:scale-105 transition-all shadow-2xl font-bold"
             >
-              🚀 Launch App
+              {currentUser ? '🚀 Launch App' : '🔐 Login to Start'}
             </Button>
-            <Button
-              size="lg"
-              variant="secondary"
-              onClick={() => {
-                const element = document.getElementById('features');
-                element?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="text-lg px-8 py-6 bg-white/10 backdrop-blur text-white hover:bg-white/20 hover:scale-105 transition-all border-2 border-white/50"
-            >
-              ✨ See Magic
-            </Button>
+            {currentUser && (
+              <Button
+                size="lg"
+                variant="secondary"
+                onClick={() => {
+                  const element = document.getElementById('features');
+                  element?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="text-lg px-8 py-6 bg-white/10 backdrop-blur text-white hover:bg-white/20 hover:scale-105 transition-all border-2 border-white/50"
+              >
+                ✨ See Magic
+              </Button>
+            )}
           </div>
 
           {/* Stats */}
@@ -110,7 +118,7 @@ export default function Home() {
             </div>
 
             {/* Feature Cards */}
-            <div className="grid md:grid-cols-2 gap-8 mb-16 text-black">
+            <div className="grid md:grid-cols-2 gap-8 mb-16 text-gray-900 dark:text-white">
               {[
                 {
                   icon: '⚡',
@@ -149,21 +157,21 @@ export default function Home() {
                   gradient: 'from-orange-400 to-red-500',
                 },
               ].map((feature, i) => (
-                <Card key={i} className="group hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 hover:scale-105">
+                <Card key={i} className="group hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 hover:scale-105 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                   <div className={`h-2 bg-gradient-to-r ${feature.gradient}`}></div>
                   <CardContent className="p-8">
                     <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">{feature.icon}</div>
-                    <h3 className="text-2xl font-bold mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 group-hover:bg-clip-text transition-all">
+                    <h3 className="text-2xl font-bold mb-3 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 group-hover:bg-clip-text transition-all text-gray-900 dark:text-white">
                       {feature.title}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{feature.description}</p>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{feature.description}</p>
                   </CardContent>
                 </Card>
               ))}
             </div>
 
             {/* Comparison Table */}
-            <Card className="mb-16 overflow-hidden">
+            <Card className="mb-16 overflow-hidden bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
               <CardContent className="p-0">
                 <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 text-center">
                   <h3 className="text-3xl font-bold">The Brutal Truth</h3>
@@ -171,17 +179,17 @@ export default function Home() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50 dark:bg-gray-800">
+                    <thead className="bg-gray-50 dark:bg-gray-900/50">
                       <tr>
-                        <th className="px-6 py-4 text-left">Feature</th>
-                        <th className="px-6 py-4 text-center">Tally</th>
-                        <th className="px-6 py-4 text-center">Zoho Books</th>
+                        <th className="px-6 py-4 text-left text-gray-900 dark:text-white">Feature</th>
+                        <th className="px-6 py-4 text-center text-gray-900 dark:text-white">Tally</th>
+                        <th className="px-6 py-4 text-center text-gray-900 dark:text-white">Zoho Books</th>
                         <th className="px-6 py-4 text-center bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
                           <span className="font-bold text-purple-600 dark:text-purple-400">Ledgo</span>
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700 text-black">
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700 text-gray-900 dark:text-gray-100">
                       {[
                         { feature: 'Keyboard Shortcuts', tally: '✅', zoho: '❌', us: '✅✅✅' },
                         { feature: 'Beautiful UI', tally: '❌', zoho: '⚠️', us: '✅' },
@@ -216,18 +224,26 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   size="lg"
-                  onClick={() => router.push(mode === 'manager' ? '/dashboard' : '/vouchers')}
+                  onClick={() => {
+                    if (currentUser) {
+                      router.push(mode === 'manager' ? '/dashboard' : '/vouchers');
+                    } else {
+                      router.push('/login');
+                    }
+                  }}
                   className="text-lg px-8 py-6 bg-white text-purple-600 hover:bg-gray-100 font-bold shadow-xl hover:scale-105 transition-all"
                 >
-                  🚀 Let's Go
+                  {currentUser ? "🚀 Let's Go" : "🔐 Login to Join"}
                 </Button>
-                <Button
-                  size="lg"
-                  onClick={() => dispatch(toggleMode())}
-                  className="text-lg px-8 py-6 bg-white/10 backdrop-blur text-white hover:bg-white/20 border-2 border-white/50 hover:scale-105 transition-all"
-                >
-                  {mode === 'accountant' ? '📊 Switch to Manager Mode' : '⌨️ Switch to Accountant Mode'}
-                </Button>
+                {currentUser && (
+                  <Button
+                    size="lg"
+                    onClick={() => dispatch(toggleMode())}
+                    className="text-lg px-8 py-6 bg-white/10 backdrop-blur text-white hover:bg-white/20 border-2 border-white/50 hover:scale-105 transition-all"
+                  >
+                    {mode === 'accountant' ? '📊 Switch to Manager Mode' : '⌨️ Switch to Accountant Mode'}
+                  </Button>
+                )}
               </div>
               <p className="mt-6 text-sm text-white/70">
                 Press Alt+K anywhere to feel the power ⚡
