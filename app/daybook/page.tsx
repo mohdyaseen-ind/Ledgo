@@ -53,15 +53,15 @@ export default function DayBookPage() {
   const getVoucherColor = (type: string) => {
     switch (type) {
       case 'SALES':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
       case 'PURCHASE':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
       case 'PAYMENT':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
       case 'RECEIPT':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
 
@@ -93,17 +93,18 @@ export default function DayBookPage() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Day Book</h1>
-          <p className="text-gray-600 mt-1">All transactions for {formatDate(selectedDate)}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Day Book</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">All transactions for {formatDate(selectedDate)}</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size="sm" className="bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700">
             Export PDF
           </Button>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             size="sm"
             onClick={() => exportDayBookToExcel(vouchers, selectedDate)}
+            className="bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700"
           >
             Export Excel
           </Button>
@@ -111,7 +112,7 @@ export default function DayBookPage() {
       </div>
 
       {/* Date Selector */}
-      <Card className="mb-6">
+      <Card className="mb-6 bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
         <CardContent className="p-4">
           <div className="flex items-end space-x-4">
             <div className="flex-1 max-w-xs">
@@ -120,6 +121,7 @@ export default function DayBookPage() {
                 label="Select Date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
+                className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
               />
             </div>
             <Button onClick={handleDateChange}>View</Button>
@@ -129,6 +131,7 @@ export default function DayBookPage() {
                 setSelectedDate(formatDateInput(new Date()));
                 fetchDayBook();
               }}
+              className="bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700"
             >
               Today
             </Button>
@@ -138,49 +141,49 @@ export default function DayBookPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <Card>
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-sm text-gray-600">Sales</CardTitle>
+            <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Sales</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-green-600">{formatCurrency(salesTotal)}</p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatCurrency(salesTotal)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {vouchers.filter((v) => v.type === 'SALES').length} vouchers
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-sm text-gray-600">Purchases</CardTitle>
+            <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Purchases</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-blue-600">{formatCurrency(purchaseTotal)}</p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{formatCurrency(purchaseTotal)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {vouchers.filter((v) => v.type === 'PURCHASE').length} vouchers
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-sm text-gray-600">Payments</CardTitle>
+            <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Payments</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-red-600">{formatCurrency(paymentTotal)}</p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatCurrency(paymentTotal)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {vouchers.filter((v) => v.type === 'PAYMENT').length} vouchers
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-sm text-gray-600">Receipts</CardTitle>
+            <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Receipts</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-purple-600">{formatCurrency(receiptTotal)}</p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{formatCurrency(receiptTotal)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {vouchers.filter((v) => v.type === 'RECEIPT').length} vouchers
             </p>
           </CardContent>
@@ -188,30 +191,30 @@ export default function DayBookPage() {
       </div>
 
       {/* Vouchers List */}
-      <Card>
+      <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>All Transactions</CardTitle>
-            <span className="text-sm text-gray-600">{vouchers.length} vouchers</span>
+            <CardTitle className="text-gray-900 dark:text-white">All Transactions</CardTitle>
+            <span className="text-sm text-gray-600 dark:text-gray-400">{vouchers.length} vouchers</span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           {vouchers.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b">
+                <thead className="bg-gray-50 dark:bg-slate-900/50 border-b border-gray-200 dark:border-gray-700">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Voucher No.</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Party</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Narration</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Voucher No.</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Party</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Narration</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {vouchers.map((voucher) => (
-                    <tr key={voucher.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                    <tr key={voucher.id} className="hover:bg-gray-50 dark:hover:bg-slate-800">
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
                         {voucher.voucherNumber}
                       </td>
                       <td className="px-4 py-3">
@@ -219,24 +222,24 @@ export default function DayBookPage() {
                           {voucher.type}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
                         {voucher.party?.name || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                         {voucher.narration || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-right font-medium text-gray-900">
+                      <td className="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-white">
                         {formatCurrency(voucher.totalAmount)}
                       </td>
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-gray-50 font-bold border-t">
+                <tfoot className="bg-gray-50 dark:bg-slate-900/50 font-bold border-t border-gray-200 dark:border-gray-700">
                   <tr>
-                    <td colSpan={4} className="px-4 py-3 text-sm text-gray-900">
+                    <td colSpan={4} className="px-4 py-3 text-sm text-gray-900 dark:text-white">
                       Total
                     </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900">
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
                       {formatCurrency(vouchers.reduce((sum, v) => sum + v.totalAmount, 0))}
                     </td>
                   </tr>
@@ -244,7 +247,7 @@ export default function DayBookPage() {
               </table>
             </div>
           ) : (
-            <div className="px-4 py-12 text-center text-sm text-gray-500">
+            <div className="px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
               <p>No transactions on this date</p>
               <p className="text-xs mt-1">Try selecting a different date</p>
             </div>
@@ -254,31 +257,30 @@ export default function DayBookPage() {
 
       {/* Cash Flow Summary */}
       {vouchers.length > 0 && (
-        <Card className="mt-6">
+        <Card className="mt-6 bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Cash Flow Summary</CardTitle>
+            <CardTitle className="text-gray-900 dark:text-white">Cash Flow Summary</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Money In</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Money In</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {formatCurrency(salesTotal + receiptTotal)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Money Out</p>
-                <p className="text-2xl font-bold text-red-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Money Out</p>
+                <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                   {formatCurrency(purchaseTotal + paymentTotal)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Net Cash Flow</p>
-                <p className={`text-2xl font-bold ${
-                  salesTotal + receiptTotal - purchaseTotal - paymentTotal >= 0
-                    ? 'text-green-600'
-                    : 'text-red-600'
-                }`}>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Net Cash Flow</p>
+                <p className={`text-2xl font-bold ${salesTotal + receiptTotal - purchaseTotal - paymentTotal >= 0
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-red-600 dark:text-red-400'
+                  }`}>
                   {formatCurrency(Math.abs(salesTotal + receiptTotal - purchaseTotal - paymentTotal))}
                 </p>
               </div>

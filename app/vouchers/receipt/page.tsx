@@ -17,7 +17,7 @@ export default function ReceiptVoucherPage() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [incomeAccounts, setIncomeAccounts] = useState<any[]>([]);
   const [bankAccounts, setBankAccounts] = useState<any[]>([]);
-  
+
   // Form state
   const [date, setDate] = useState(formatDateInput(new Date()));
   const [bankAccountId, setBankAccountId] = useState('');
@@ -46,7 +46,7 @@ export default function ReceiptVoucherPage() {
 
       // Get bank accounts
       const allAccounts = await accountsAPI.getAll({ type: 'ASSET' });
-      const banks = allAccounts.filter((acc: any) => 
+      const banks = allAccounts.filter((acc: any) =>
         acc.name.toLowerCase().includes('bank') || acc.name.toLowerCase().includes('cash')
       );
       setBankAccounts(banks);
@@ -60,7 +60,7 @@ export default function ReceiptVoucherPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!bankAccountId) {
       alert('Please select a bank account');
       return;
@@ -92,7 +92,7 @@ export default function ReceiptVoucherPage() {
         amount,
         narration,
       });
-      
+
       alert('Receipt voucher created successfully!');
       router.push('/vouchers');
     } catch (error) {
@@ -124,14 +124,14 @@ export default function ReceiptVoucherPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Receipt Voucher</h1>
-        <p className="text-gray-600 mt-1">Record money coming in</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Receipt Voucher</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Record money coming in</p>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <Card>
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Receipt Details</CardTitle>
+            <CardTitle className="text-gray-900 dark:text-white">Receipt Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Bank & Date */}
@@ -147,6 +147,7 @@ export default function ReceiptVoucherPage() {
                     ...bankAccounts.map((acc) => ({ value: acc.id, label: acc.name })),
                   ]}
                   required
+                  className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
               <div>
@@ -156,13 +157,14 @@ export default function ReceiptVoucherPage() {
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   required
+                  className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
             </div>
 
             {/* Receipt Type Toggle */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Receipt Type
               </label>
               <div className="flex space-x-2">
@@ -170,6 +172,7 @@ export default function ReceiptVoucherPage() {
                   type="button"
                   variant={receiptType === 'customer' ? 'primary' : 'secondary'}
                   onClick={() => setReceiptType('customer')}
+                  className={receiptType !== 'customer' ? "bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700" : ""}
                 >
                   From Customer
                 </Button>
@@ -177,6 +180,7 @@ export default function ReceiptVoucherPage() {
                   type="button"
                   variant={receiptType === 'income' ? 'primary' : 'secondary'}
                   onClick={() => setReceiptType('income')}
+                  className={receiptType !== 'income' ? "bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700" : ""}
                 >
                   Direct Income
                 </Button>
@@ -195,6 +199,7 @@ export default function ReceiptVoucherPage() {
                     ...customers.map((c) => ({ value: c.id, label: c.name })),
                   ]}
                   required
+                  className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
             ) : (
@@ -208,6 +213,7 @@ export default function ReceiptVoucherPage() {
                     ...incomeAccounts.map((acc) => ({ value: acc.id, label: acc.name })),
                   ]}
                   required
+                  className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
             )}
@@ -223,6 +229,7 @@ export default function ReceiptVoucherPage() {
                 step="0.01"
                 placeholder="0.00"
                 required
+                className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
@@ -233,12 +240,13 @@ export default function ReceiptVoucherPage() {
                 value={narration}
                 onChange={(e) => setNarration(e.target.value)}
                 placeholder="Receipt description..."
+                className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
             {/* Actions */}
-            <div className="flex justify-between items-center pt-4 border-t">
-              <div className="text-sm text-gray-500">
+            <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 💡 Ctrl+Enter to save • Esc to cancel
               </div>
               <div className="flex space-x-2">
@@ -246,6 +254,7 @@ export default function ReceiptVoucherPage() {
                   type="button"
                   variant="secondary"
                   onClick={() => router.push('/vouchers')}
+                  className="bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700"
                 >
                   Cancel
                 </Button>

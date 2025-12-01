@@ -69,7 +69,7 @@ export default function CommandPalette() {
         setOpen(false);
       },
     },
-    
+
     // Views
     {
       id: 'vouchers',
@@ -101,7 +101,7 @@ export default function CommandPalette() {
         setOpen(false);
       },
     },
-    
+
     // Reports
     {
       id: 'trial',
@@ -143,7 +143,7 @@ export default function CommandPalette() {
         setOpen(false);
       },
     },
-    
+
     // Navigation
     {
       id: 'dashboard',
@@ -155,7 +155,7 @@ export default function CommandPalette() {
         setOpen(false);
       },
     },
-    
+
     // Mode Toggle
     {
       id: 'toggle-mode',
@@ -225,86 +225,86 @@ export default function CommandPalette() {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-[20vh]">
-      <Command className="bg-white rounded-lg shadow-2xl w-full max-w-2xl border border-gray-200">
-        <div className="border-b border-gray-200 px-4">
+      <Command className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl w-full max-w-2xl border border-gray-200 dark:border-slate-800">
+        <div className="border-b border-gray-200 dark:border-slate-800 px-4">
           <Command.Input
             placeholder="Type a command or search..."
-            className="w-full py-4 text-lg outline-none"
+            className="w-full py-4 text-lg outline-none bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400"
             autoFocus
           />
         </div>
-        
+
         <Command.List className="max-h-[400px] overflow-y-auto p-2">
-          <Command.Empty className="py-6 text-center text-sm text-gray-500">
+          <Command.Empty className="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
             No results found.
           </Command.Empty>
 
-          <Command.Group heading="Create Vouchers" className="text-xs text-gray-500 px-2 py-2 font-semibold">
+          <Command.Group heading="Create Vouchers" className="text-xs text-gray-500 dark:text-gray-400 px-2 py-2 font-semibold">
             {commands
               .filter((cmd) => ['sales', 'purchase', 'payment', 'receipt'].includes(cmd.id))
               .map((command) => (
                 <Command.Item
                   key={command.id}
                   onSelect={command.action}
-                  className="flex items-center justify-between px-3 py-2 rounded cursor-pointer hover:bg-gray-100 mb-1"
+                  className="flex items-center justify-between px-3 py-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 mb-1 text-gray-900 dark:text-gray-100"
                   keywords={command.keywords}
                 >
                   <span>{command.label}</span>
-                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                  <span className="text-xs text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
                     {command.shortcut}
                   </span>
                 </Command.Item>
               ))}
           </Command.Group>
 
-          <Command.Group heading="Navigation" className="text-xs text-gray-500 px-2 py-2 font-semibold mt-2">
+          <Command.Group heading="Navigation" className="text-xs text-gray-500 dark:text-gray-400 px-2 py-2 font-semibold mt-2">
             {commands
               .filter((cmd) => ['vouchers', 'ledgers', 'daybook', 'dashboard'].includes(cmd.id))
               .map((command) => (
                 <Command.Item
                   key={command.id}
                   onSelect={command.action}
-                  className="flex items-center justify-between px-3 py-2 rounded cursor-pointer hover:bg-gray-100 mb-1"
+                  className="flex items-center justify-between px-3 py-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 mb-1 text-gray-900 dark:text-gray-100"
                   keywords={command.keywords}
                 >
                   <span>{command.label}</span>
-                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                  <span className="text-xs text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
                     {command.shortcut}
                   </span>
                 </Command.Item>
               ))}
           </Command.Group>
 
-          <Command.Group heading="Reports" className="text-xs text-gray-500 px-2 py-2 font-semibold mt-2">
+          <Command.Group heading="Reports" className="text-xs text-gray-500 dark:text-gray-400 px-2 py-2 font-semibold mt-2">
             {commands
               .filter((cmd) => ['trial', 'pl', 'gst', 'outstanding'].includes(cmd.id))
               .map((command) => (
                 <Command.Item
                   key={command.id}
                   onSelect={command.action}
-                  className="flex items-center justify-between px-3 py-2 rounded cursor-pointer hover:bg-gray-100 mb-1"
+                  className="flex items-center justify-between px-3 py-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 mb-1 text-gray-900 dark:text-gray-100"
                   keywords={command.keywords}
                 >
                   <span>{command.label}</span>
-                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                  <span className="text-xs text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
                     {command.shortcut}
                   </span>
                 </Command.Item>
               ))}
           </Command.Group>
 
-          <Command.Group heading="Settings" className="text-xs text-gray-500 px-2 py-2 font-semibold mt-2">
+          <Command.Group heading="Settings" className="text-xs text-gray-500 dark:text-gray-400 px-2 py-2 font-semibold mt-2">
             {commands
               .filter((cmd) => cmd.id === 'toggle-mode')
               .map((command) => (
                 <Command.Item
                   key={command.id}
                   onSelect={command.action}
-                  className="flex items-center justify-between px-3 py-2 rounded cursor-pointer hover:bg-gray-100 mb-1"
+                  className="flex items-center justify-between px-3 py-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 mb-1 text-gray-900 dark:text-gray-100"
                   keywords={command.keywords}
                 >
                   <span>{command.label}</span>
-                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                  <span className="text-xs text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
                     {command.shortcut}
                   </span>
                 </Command.Item>
@@ -312,13 +312,13 @@ export default function CommandPalette() {
           </Command.Group>
         </Command.List>
 
-        <div className="border-t border-gray-200 px-4 py-3 text-xs text-gray-500">
+        <div className="border-t border-gray-200 dark:border-slate-800 px-4 py-3 text-xs text-gray-500 dark:text-gray-400">
           <span className="mr-4">↑↓ Navigate</span>
           <span className="mr-4">↵ Select</span>
           <span>Esc Close</span>
         </div>
       </Command>
-      
+
       {/* Click outside to close */}
       <div
         className="fixed inset-0 -z-10"

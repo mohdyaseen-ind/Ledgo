@@ -14,8 +14,8 @@ import { formatDateInput, calculateGST } from '@/lib/utils';
 interface Item {
   id: string;
   description: string;
-  quantity: number;
-  rate: number;
+  quantity: number | string;
+  rate: number | string;
   amount: number;
   gstRate: number;
   gstAmount: number;
@@ -26,7 +26,7 @@ export default function PurchaseVoucherPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [suppliers, setSuppliers] = useState<any[]>([]);
-  
+
   // Form state
   const [date, setDate] = useState(formatDateInput(new Date()));
   const [partyId, setPartyId] = useState('');
@@ -70,7 +70,10 @@ export default function PurchaseVoucherPage() {
         const updated = { ...item, [field]: value };
 
         if (field === 'quantity' || field === 'rate' || field === 'gstRate') {
-          const amount = updated.quantity * updated.rate;
+          const qty = typeof updated.quantity === 'string' ? parseFloat(updated.quantity) || 0 : updated.quantity;
+          const rate = typeof updated.rate === 'string' ? parseFloat(updated.rate) || 0 : updated.rate;
+
+          const amount = qty * rate;
           const { gstAmount, total } = calculateGST(amount, updated.gstRate);
           updated.amount = amount;
           updated.gstAmount = gstAmount;
@@ -104,7 +107,7 @@ export default function PurchaseVoucherPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!partyId) {
       alert('Please select a supplier');
       return;
@@ -122,7 +125,7 @@ export default function PurchaseVoucherPage() {
         items: items.map(({ id, ...item }) => item),
         amount: totalAmount,
       });
-      
+
       alert('Purchase voucher created successfully!');
       router.push('/vouchers');
     } catch (error) {
@@ -162,14 +165,14 @@ export default function PurchaseVoucherPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Purchase Voucher</h1>
-        <p className="text-gray-600 mt-1">Record purchases from suppliers</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Purchase Voucher</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Record purchases from suppliers</p>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <Card>
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Voucher Details</CardTitle>
+            <CardTitle className="text-gray-900 dark:text-white">Voucher Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
@@ -184,6 +187,7 @@ export default function PurchaseVoucherPage() {
                     ...suppliers.map((p) => ({ value: p.id, label: p.name })),
                   ]}
                   required
+                  className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
               <div>
@@ -193,40 +197,41 @@ export default function PurchaseVoucherPage() {
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   required
+                  className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
             </div>
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Items
                 </label>
-                <Button type="button" variant="ghost" size="sm" onClick={addItem}>
+                <Button type="button" variant="ghost" size="sm" onClick={addItem} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   + Add Line (Ctrl+N)
                 </Button>
               </div>
 
-              <div className="border rounded-lg overflow-hidden">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-50 dark:bg-slate-900/50">
                     <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Description</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 w-24">Qty</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 w-32">Rate</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 w-24">GST%</th>
-                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 w-32">Amount</th>
-                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 w-32">Total</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Description</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-24">Qty</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-32">Rate</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-24">GST%</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 w-32">Amount</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 w-32">Total</th>
                       <th className="px-3 py-2 w-10"></th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {items.map((item) => (
                       <tr key={item.id}>
                         <td className="px-3 py-2">
                           <input
                             type="text"
-                            className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                             value={item.description}
                             onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
                             placeholder="Item description"
@@ -236,9 +241,9 @@ export default function PurchaseVoucherPage() {
                         <td className="px-3 py-2">
                           <input
                             type="number"
-                            className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white"
                             value={item.quantity}
-                            onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                            onChange={(e) => handleItemChange(item.id, 'quantity', e.target.value)}
                             min="0"
                             step="0.01"
                             required
@@ -247,9 +252,9 @@ export default function PurchaseVoucherPage() {
                         <td className="px-3 py-2">
                           <input
                             type="number"
-                            className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white"
                             value={item.rate}
-                            onChange={(e) => handleItemChange(item.id, 'rate', parseFloat(e.target.value) || 0)}
+                            onChange={(e) => handleItemChange(item.id, 'rate', e.target.value)}
                             min="0"
                             step="0.01"
                             required
@@ -257,7 +262,7 @@ export default function PurchaseVoucherPage() {
                         </td>
                         <td className="px-3 py-2">
                           <select
-                            className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white"
                             value={item.gstRate}
                             onChange={(e) => handleItemChange(item.id, 'gstRate', parseFloat(e.target.value))}
                           >
@@ -268,10 +273,10 @@ export default function PurchaseVoucherPage() {
                             <option value="28">28%</option>
                           </select>
                         </td>
-                        <td className="px-3 py-2 text-right text-sm">
+                        <td className="px-3 py-2 text-right text-sm text-gray-900 dark:text-gray-300">
                           ₹{item.amount.toFixed(2)}
                         </td>
-                        <td className="px-3 py-2 text-right font-medium">
+                        <td className="px-3 py-2 text-right font-medium text-gray-900 dark:text-white">
                           ₹{item.total.toFixed(2)}
                         </td>
                         <td className="px-3 py-2">
@@ -279,7 +284,7 @@ export default function PurchaseVoucherPage() {
                             <button
                               type="button"
                               onClick={() => removeItem(item.id)}
-                              className="text-red-600 hover:text-red-800"
+                              className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                             >
                               ×
                             </button>
@@ -294,14 +299,14 @@ export default function PurchaseVoucherPage() {
               <div className="mt-4 flex justify-end">
                 <div className="w-64 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Base Amount:</span>
-                    <span className="font-medium">₹{baseAmount.toFixed(2)}</span>
+                    <span className="text-gray-600 dark:text-gray-400">Base Amount:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">₹{baseAmount.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">GST:</span>
-                    <span className="font-medium">₹{totalGST.toFixed(2)}</span>
+                    <span className="text-gray-600 dark:text-gray-400">GST:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">₹{totalGST.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold border-t pt-2">
+                  <div className="flex justify-between text-lg font-bold border-t border-gray-200 dark:border-gray-700 pt-2 text-gray-900 dark:text-white">
                     <span>Total:</span>
                     <span>₹{totalAmount.toFixed(2)}</span>
                   </div>
@@ -315,11 +320,12 @@ export default function PurchaseVoucherPage() {
                 value={narration}
                 onChange={(e) => setNarration(e.target.value)}
                 placeholder="Optional notes..."
+                className="bg-white dark:bg-slate-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
-            <div className="flex justify-between items-center pt-4 border-t">
-              <div className="text-sm text-gray-500">
+            <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 💡 Ctrl+Enter to save • Ctrl+N for new line • Esc to cancel
               </div>
               <div className="flex space-x-2">
@@ -327,6 +333,7 @@ export default function PurchaseVoucherPage() {
                   type="button"
                   variant="secondary"
                   onClick={() => router.push('/vouchers')}
+                  className="bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-600"
                 >
                   Cancel
                 </Button>

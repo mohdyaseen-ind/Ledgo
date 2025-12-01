@@ -30,7 +30,7 @@ interface PLData {
 export default function PLPage() {
   const [data, setData] = useState<PLData | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Date range - default to current financial year
   const [startDate, setStartDate] = useState(() => {
     const date = new Date();
@@ -41,7 +41,7 @@ export default function PLPage() {
     }
     return formatDateInput(date);
   });
-  
+
   const [endDate, setEndDate] = useState(formatDateInput(new Date()));
 
   useEffect(() => {
@@ -77,9 +77,9 @@ export default function PLPage() {
   if (!data) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <Card>
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardContent className="text-center py-12">
-            <p className="text-gray-500">Failed to load P&L statement</p>
+            <p className="text-gray-500 dark:text-gray-400">Failed to load P&L statement</p>
           </CardContent>
         </Card>
       </div>
@@ -92,19 +92,20 @@ export default function PLPage() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Profit & Loss Statement</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Profit & Loss Statement</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             {new Date(startDate).toLocaleDateString('en-IN')} to {new Date(endDate).toLocaleDateString('en-IN')}
           </p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size="sm" className="bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700">
             Export PDF
           </Button>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             size="sm"
             onClick={() => exportPLToExcel(incomeAccounts, expenseAccounts, totalIncome, totalExpenses, netProfit)}
+            className="bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700"
           >
             Export Excel
           </Button>
@@ -112,7 +113,7 @@ export default function PLPage() {
       </div>
 
       {/* Date Range Filter */}
-      <Card className="mb-6">
+      <Card className="mb-6 bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
         <CardContent className="p-4">
           <div className="flex items-end space-x-4">
             <div className="flex-1">
@@ -121,6 +122,7 @@ export default function PLPage() {
                 label="Start Date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
+                className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
               />
             </div>
             <div className="flex-1">
@@ -129,6 +131,7 @@ export default function PLPage() {
                 label="End Date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
+                className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
               />
             </div>
             <Button onClick={handleDateChange}>
@@ -140,30 +143,30 @@ export default function PLPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <Card>
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-sm text-gray-600">Total Income</CardTitle>
+            <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Total Income</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{formatCurrency(totalIncome)}</p>
           </CardContent>
         </Card>
-        
-        <Card>
+
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-sm text-gray-600">Total Expenses</CardTitle>
+            <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Total Expenses</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-red-600">{formatCurrency(totalExpenses)}</p>
+            <p className="text-3xl font-bold text-red-600 dark:text-red-400">{formatCurrency(totalExpenses)}</p>
           </CardContent>
         </Card>
-        
-        <Card className={netProfit >= 0 ? 'bg-green-50' : 'bg-red-50'}>
+
+        <Card className={`${netProfit >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'} border-gray-200 dark:border-gray-700`}>
           <CardHeader>
-            <CardTitle className="text-sm text-gray-600">Net {netProfit >= 0 ? 'Profit' : 'Loss'}</CardTitle>
+            <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Net {netProfit >= 0 ? 'Profit' : 'Loss'}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-3xl font-bold ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`text-3xl font-bold ${netProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
               {formatCurrency(Math.abs(netProfit))}
             </p>
           </CardContent>
@@ -172,44 +175,44 @@ export default function PLPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Income Section */}
-        <Card>
-          <CardHeader className="bg-green-50">
-            <CardTitle>Income</CardTitle>
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
+          <CardHeader className="bg-green-50 dark:bg-green-900/20 border-b border-green-100 dark:border-green-900/30">
+            <CardTitle className="text-gray-900 dark:text-white">Income</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-gray-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                     Account
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                     Amount
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {incomeAccounts.length > 0 ? (
                   incomeAccounts.map((account) => (
-                    <tr key={account.accountId} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900">{account.accountName}</td>
-                      <td className="px-4 py-3 text-sm text-right text-gray-900">
+                    <tr key={account.accountId} className="hover:bg-gray-50 dark:hover:bg-slate-800">
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{account.accountName}</td>
+                      <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
                         {formatCurrency(account.amount)}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={2} className="px-4 py-8 text-center text-sm text-gray-500">
+                    <td colSpan={2} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                       No income recorded
                     </td>
                   </tr>
                 )}
               </tbody>
-              <tfoot className="bg-green-50 font-bold">
+              <tfoot className="bg-green-50 dark:bg-green-900/20 font-bold border-t border-green-100 dark:border-green-900/30">
                 <tr>
-                  <td className="px-4 py-3 text-sm text-gray-900">Total Income</td>
-                  <td className="px-4 py-3 text-sm text-right text-green-600">
+                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">Total Income</td>
+                  <td className="px-4 py-3 text-sm text-right text-green-600 dark:text-green-400">
                     {formatCurrency(totalIncome)}
                   </td>
                 </tr>
@@ -219,44 +222,44 @@ export default function PLPage() {
         </Card>
 
         {/* Expenses Section */}
-        <Card>
-          <CardHeader className="bg-red-50">
-            <CardTitle>Expenses</CardTitle>
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
+          <CardHeader className="bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-900/30">
+            <CardTitle className="text-gray-900 dark:text-white">Expenses</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-gray-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                     Account
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                     Amount
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {expenseAccounts.length > 0 ? (
                   expenseAccounts.map((account) => (
-                    <tr key={account.accountId} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900">{account.accountName}</td>
-                      <td className="px-4 py-3 text-sm text-right text-gray-900">
+                    <tr key={account.accountId} className="hover:bg-gray-50 dark:hover:bg-slate-800">
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{account.accountName}</td>
+                      <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
                         {formatCurrency(account.amount)}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={2} className="px-4 py-8 text-center text-sm text-gray-500">
+                    <td colSpan={2} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                       No expenses recorded
                     </td>
                   </tr>
                 )}
               </tbody>
-              <tfoot className="bg-red-50 font-bold">
+              <tfoot className="bg-red-50 dark:bg-red-900/20 font-bold border-t border-red-100 dark:border-red-900/30">
                 <tr>
-                  <td className="px-4 py-3 text-sm text-gray-900">Total Expenses</td>
-                  <td className="px-4 py-3 text-sm text-right text-red-600">
+                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">Total Expenses</td>
+                  <td className="px-4 py-3 text-sm text-right text-red-600 dark:text-red-400">
                     {formatCurrency(totalExpenses)}
                   </td>
                 </tr>
@@ -267,18 +270,18 @@ export default function PLPage() {
       </div>
 
       {/* Net Result */}
-      <Card className={`mt-6 ${netProfit >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+      <Card className={`mt-6 ${netProfit >= 0 ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-900/30' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900/30'}`}>
         <CardContent className="p-6">
           <div className="flex justify-between items-center">
             <div>
-              <p className="text-lg font-medium text-gray-900">
+              <p className="text-lg font-medium text-gray-900 dark:text-white">
                 Net {netProfit >= 0 ? 'Profit' : 'Loss'}
               </p>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 {netProfit >= 0 ? 'Income exceeds expenses' : 'Expenses exceed income'}
               </p>
             </div>
-            <div className={`text-4xl font-bold ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`text-4xl font-bold ${netProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
               {formatCurrency(Math.abs(netProfit))}
             </div>
           </div>

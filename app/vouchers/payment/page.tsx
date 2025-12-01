@@ -17,7 +17,7 @@ export default function PaymentVoucherPage() {
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [expenseAccounts, setExpenseAccounts] = useState<any[]>([]);
   const [bankAccounts, setBankAccounts] = useState<any[]>([]);
-  
+
   // Form state
   const [date, setDate] = useState(formatDateInput(new Date()));
   const [bankAccountId, setBankAccountId] = useState('');
@@ -46,7 +46,7 @@ export default function PaymentVoucherPage() {
 
       // Get bank accounts
       const allAccounts = await accountsAPI.getAll({ type: 'ASSET' });
-      const banks = allAccounts.filter((acc: any) => 
+      const banks = allAccounts.filter((acc: any) =>
         acc.name.toLowerCase().includes('bank') || acc.name.toLowerCase().includes('cash')
       );
       setBankAccounts(banks);
@@ -60,7 +60,7 @@ export default function PaymentVoucherPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!bankAccountId) {
       alert('Please select a bank account');
       return;
@@ -92,7 +92,7 @@ export default function PaymentVoucherPage() {
         amount,
         narration,
       });
-      
+
       alert('Payment voucher created successfully!');
       router.push('/vouchers');
     } catch (error) {
@@ -124,14 +124,14 @@ export default function PaymentVoucherPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Payment Voucher</h1>
-        <p className="text-gray-600 mt-1">Record money going out</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Payment Voucher</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Record money going out</p>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <Card>
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Payment Details</CardTitle>
+            <CardTitle className="text-gray-900 dark:text-white">Payment Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Bank & Date */}
@@ -147,6 +147,7 @@ export default function PaymentVoucherPage() {
                     ...bankAccounts.map((acc) => ({ value: acc.id, label: acc.name })),
                   ]}
                   required
+                  className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
               <div>
@@ -156,13 +157,14 @@ export default function PaymentVoucherPage() {
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   required
+                  className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
             </div>
 
             {/* Payment Type Toggle */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Payment Type
               </label>
               <div className="flex space-x-2">
@@ -170,6 +172,7 @@ export default function PaymentVoucherPage() {
                   type="button"
                   variant={paymentType === 'supplier' ? 'primary' : 'secondary'}
                   onClick={() => setPaymentType('supplier')}
+                  className={paymentType !== 'supplier' ? "bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700" : ""}
                 >
                   To Supplier
                 </Button>
@@ -177,6 +180,7 @@ export default function PaymentVoucherPage() {
                   type="button"
                   variant={paymentType === 'expense' ? 'primary' : 'secondary'}
                   onClick={() => setPaymentType('expense')}
+                  className={paymentType !== 'expense' ? "bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700" : ""}
                 >
                   Direct Expense
                 </Button>
@@ -195,6 +199,7 @@ export default function PaymentVoucherPage() {
                     ...suppliers.map((s) => ({ value: s.id, label: s.name })),
                   ]}
                   required
+                  className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
             ) : (
@@ -208,6 +213,7 @@ export default function PaymentVoucherPage() {
                     ...expenseAccounts.map((acc) => ({ value: acc.id, label: acc.name })),
                   ]}
                   required
+                  className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
             )}
@@ -223,6 +229,7 @@ export default function PaymentVoucherPage() {
                 step="0.01"
                 placeholder="0.00"
                 required
+                className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
@@ -233,12 +240,13 @@ export default function PaymentVoucherPage() {
                 value={narration}
                 onChange={(e) => setNarration(e.target.value)}
                 placeholder="Payment description..."
+                className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
               />
             </div>
 
             {/* Actions */}
-            <div className="flex justify-between items-center pt-4 border-t">
-              <div className="text-sm text-gray-500">
+            <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 💡 Ctrl+Enter to save • Esc to cancel
               </div>
               <div className="flex space-x-2">
@@ -246,6 +254,7 @@ export default function PaymentVoucherPage() {
                   type="button"
                   variant="secondary"
                   onClick={() => router.push('/vouchers')}
+                  className="bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700"
                 >
                   Cancel
                 </Button>

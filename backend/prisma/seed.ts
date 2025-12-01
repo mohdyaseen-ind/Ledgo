@@ -1,6 +1,7 @@
 // backend/prisma/seed.ts
 
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -16,12 +17,15 @@ async function main() {
 
   console.log('✅ Cleared existing data');
 
+  const passwordHash = await bcrypt.hash('password123', 10);
+
   // Create Users
   const accountant = await prisma.user.create({
     data: {
       name: 'Rajesh Kumar',
       email: 'accountant@company.com',
       role: 'ACCOUNTANT',
+      passwordHash,
     },
   });
 
@@ -30,6 +34,7 @@ async function main() {
       name: 'Priya Sharma',
       email: 'manager@company.com',
       role: 'MANAGER',
+      passwordHash,
     },
   });
 
@@ -213,10 +218,10 @@ async function main() {
 }
 
 main()
-.catch((e) => {
+  .catch((e) => {
     console.error('❌ Seed failed:', e);
     process.exit(1);
-})
-.finally(async () => {
+  })
+  .finally(async () => {
     await prisma.$disconnect();
-});
+  });

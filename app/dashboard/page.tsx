@@ -32,20 +32,23 @@ export default function DashboardPage() {
     try {
       setLoading(true);
 
-      // Get current month dates
+      // Calculate date ranges
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      const startOfSixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
-      // Fetch all vouchers for current month
-      const vouchers = await vouchersAPI.getAll({
-        startDate: startOfMonth.toISOString().split('T')[0],
+      // Fetch all vouchers for last 6 months (for trend)
+      const allVouchers = await vouchersAPI.getAll({
+        startDate: startOfSixMonthsAgo.toISOString().split('T')[0],
         endDate: endOfMonth.toISOString().split('T')[0],
       });
 
-      // Calculate totals
-      const salesVouchers = vouchers.filter((v: any) => v.type === 'SALES');
-      const purchaseVouchers = vouchers.filter((v: any) => v.type === 'PURCHASE');
+      // Filter for current month (for key metrics)
+      const currentMonthVouchers = allVouchers.filter((v: any) => new Date(v.date) >= startOfMonth);
+
+      const salesVouchers = currentMonthVouchers.filter((v: any) => v.type === 'SALES');
+      const purchaseVouchers = currentMonthVouchers.filter((v: any) => v.type === 'PURCHASE');
 
       const totalSales = salesVouchers.reduce((sum: number, v: any) => sum + v.totalAmount, 0);
       const totalPurchases = purchaseVouchers.reduce((sum: number, v: any) => sum + v.totalAmount, 0);
@@ -67,8 +70,8 @@ export default function DashboardPage() {
       const bankAccount = accounts.find((acc: any) => acc.name.toLowerCase().includes('bank'));
       const cashBalance = bankAccount ? bankAccount.openingBalance : 0;
 
-      // Generate sales trend (last 6 months)
-      const salesTrend = generateSalesTrend();
+      // Generate sales trend from real data
+      const salesTrend = generateSalesTrend(allVouchers);
 
       // Get top customers
       const customerSales = new Map<string, number>();
@@ -102,16 +105,28 @@ export default function DashboardPage() {
     }
   };
 
-  const generateSalesTrend = () => {
+  const generateSalesTrend = (vouchers: any[]) => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const now = new Date();
     const trend = [];
 
     for (let i = 5; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthIndex = d.getMonth();
+      const year = d.getFullYear();
+      const monthName = months[monthIndex];
+
+      // Filter sales for this specific month and year
+      const monthlySales = vouchers
+        .filter((v: any) => {
+          const vDate = new Date(v.date);
+          return v.type === 'SALES' && vDate.getMonth() === monthIndex && vDate.getFullYear() === year;
+        })
+        .reduce((sum: number, v: any) => sum + v.totalAmount, 0);
+
       trend.push({
-        month: months[date.getMonth()],
-        amount: Math.random() * 500000 + 200000, // Mock data - replace with real data
+        month: monthName,
+        amount: monthlySales,
       });
     }
 
@@ -131,7 +146,7 @@ export default function DashboardPage() {
   if (!data) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardContent className="text-center py-12">
             <p className="text-gray-500 dark:text-gray-400">Failed to load dashboard</p>
           </CardContent>
@@ -151,7 +166,7 @@ export default function DashboardPage() {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Total Sales (This Month)</CardTitle>
           </CardHeader>
@@ -161,7 +176,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Total Purchases</CardTitle>
           </CardHeader>
@@ -183,7 +198,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Cash Balance</CardTitle>
           </CardHeader>
@@ -197,7 +212,7 @@ export default function DashboardPage() {
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Sales Trend */}
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="text-gray-900 dark:text-white">Sales Trend (Last 6 Months)</CardTitle>
           </CardHeader>
@@ -218,7 +233,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Top Customers */}
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="text-gray-900 dark:text-white">Top 5 Customers</CardTitle>
           </CardHeader>
@@ -247,7 +262,7 @@ export default function DashboardPage() {
 
       {/* Outstanding & GST */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Outstanding Receivables</CardTitle>
           </CardHeader>
@@ -259,7 +274,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Outstanding Payables</CardTitle>
           </CardHeader>
@@ -287,28 +302,28 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+      <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
         <CardHeader>
           <CardTitle className="text-gray-900 dark:text-white">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left">
+            <button className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-left">
               <div className="text-2xl mb-2">📄</div>
               <p className="font-medium text-gray-900 dark:text-white">View Reports</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">P&L, GST, Trial Balance</p>
             </button>
-            <button className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left">
+            <button className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-left">
               <div className="text-2xl mb-2">📊</div>
               <p className="font-medium text-gray-900 dark:text-white">Ledgers</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">View account details</p>
             </button>
-            <button className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left">
+            <button className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-left">
               <div className="text-2xl mb-2">💰</div>
               <p className="font-medium text-gray-900 dark:text-white">Outstanding</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">Track payments</p>
             </button>
-            <button className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left">
+            <button className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-left">
               <div className="text-2xl mb-2">📅</div>
               <p className="font-medium text-gray-900 dark:text-white">Day Book</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">Daily transactions</p>

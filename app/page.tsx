@@ -105,7 +105,7 @@ export default function Home() {
         </div>
 
         {/* Features Section */}
-        <div id="features" className="bg-white dark:bg-gray-900 py-20">
+        <div id="features" className="bg-white dark:bg-slate-950 py-20">
           <div className="max-w-7xl mx-auto px-4">
             {/* Section Header */}
             <div className="text-center mb-16">
@@ -157,7 +157,7 @@ export default function Home() {
                   gradient: 'from-orange-400 to-red-500',
                 },
               ].map((feature, i) => (
-                <Card key={i} className="group hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 hover:scale-105 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                <Card key={i} className="group hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 hover:scale-105 bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
                   <div className={`h-2 bg-gradient-to-r ${feature.gradient}`}></div>
                   <CardContent className="p-8">
                     <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">{feature.icon}</div>
@@ -171,7 +171,7 @@ export default function Home() {
             </div>
 
             {/* Comparison Table */}
-            <Card className="mb-16 overflow-hidden bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <Card className="mb-16 overflow-hidden bg-white dark:bg-slate-900 border-gray-200 dark:border-gray-700">
               <CardContent className="p-0">
                 <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 text-center">
                   <h3 className="text-3xl font-bold">The Brutal Truth</h3>
@@ -179,7 +179,7 @@ export default function Home() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50 dark:bg-gray-900/50">
+                    <thead className="bg-gray-50 dark:bg-slate-900/50">
                       <tr>
                         <th className="px-6 py-4 text-left text-gray-900 dark:text-white">Feature</th>
                         <th className="px-6 py-4 text-center text-gray-900 dark:text-white">Tally</th>
@@ -200,7 +200,7 @@ export default function Home() {
                         { feature: 'Free', tally: '❌ (₹54K)', zoho: '❌ ($$$)', us: '✅ (₹0)' },
                         { feature: 'Makes You Cool', tally: '❌', zoho: '❌', us: '✅✅✅' },
                       ].map((row, i) => (
-                        <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <tr key={i} className="hover:bg-gray-50 dark:hover:bg-slate-800">
                           <td className="px-6 py-4 font-medium">{row.feature}</td>
                           <td className="px-6 py-4 text-center">{row.tally}</td>
                           <td className="px-6 py-4 text-center">{row.zoho}</td>

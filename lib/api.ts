@@ -6,12 +6,20 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 // Generic fetch wrapper
 async function fetchAPI(endpoint: string, options?: RequestInit) {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...options?.headers,
+  };
+
+  if (token) {
+    (headers as any)['Authorization'] = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
+    headers,
   });
 
   if (!response.ok) {
@@ -30,9 +38,9 @@ export const accountsAPI = {
     if (params?.isParty !== undefined) query.append('isParty', String(params.isParty));
     return fetchAPI(`/accounts?${query.toString()}`);
   },
-  
+
   getById: (id: string) => fetchAPI(`/accounts/${id}`),
-  
+
   create: (data: any) =>
     fetchAPI('/accounts', {
       method: 'POST',
@@ -49,15 +57,15 @@ export const vouchersAPI = {
     if (params?.endDate) query.append('endDate', params.endDate);
     return fetchAPI(`/vouchers?${query.toString()}`);
   },
-  
+
   getById: (id: string) => fetchAPI(`/vouchers/${id}`),
-  
+
   create: (data: any) =>
     fetchAPI('/vouchers', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  
+
   delete: (id: string) =>
     fetchAPI(`/vouchers/${id}`, {
       method: 'DELETE',
@@ -70,23 +78,23 @@ export const reportsAPI = {
     const query = date ? `?date=${date}` : '';
     return fetchAPI(`/reports/trial-balance${query}`);
   },
-  
+
   profitAndLoss: (startDate?: string, endDate?: string) => {
     const query = new URLSearchParams();
     if (startDate) query.append('startDate', startDate);
     if (endDate) query.append('endDate', endDate);
     return fetchAPI(`/reports/pl?${query.toString()}`);
   },
-  
+
   gst: (month?: number, year?: number) => {
     const query = new URLSearchParams();
     if (month) query.append('month', String(month));
     if (year) query.append('year', String(year));
     return fetchAPI(`/reports/gst?${query.toString()}`);
   },
-  
+
   outstanding: () => fetchAPI('/reports/outstanding'),
-  
+
   ledger: (accountId: string, startDate?: string, endDate?: string) => {
     const query = new URLSearchParams();
     if (startDate) query.append('startDate', startDate);
