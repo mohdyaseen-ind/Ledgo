@@ -47,7 +47,7 @@ export default function LedgerDetailPage() {
 
   const [data, setData] = useState<LedgerData | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Date filters
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState(formatDateInput(new Date()));
@@ -91,6 +91,13 @@ export default function LedgerDetailPage() {
     }
   };
 
+  const formatLargeCurrency = (amount: number) => {
+    if (Math.abs(amount) >= 1e11) {
+      return `₹${amount.toExponential(2)}`;
+    }
+    return formatCurrency(amount);
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -127,12 +134,11 @@ export default function LedgerDetailPage() {
           </Button>
           <h1 className="text-3xl font-bold text-gray-900">{account.name}</h1>
           <div className="flex items-center space-x-3 mt-2">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-              account.type === 'ASSET' ? 'bg-blue-100 text-blue-800' :
-              account.type === 'LIABILITY' ? 'bg-red-100 text-red-800' :
-              account.type === 'INCOME' ? 'bg-green-100 text-green-800' :
-              'bg-yellow-100 text-yellow-800'
-            }`}>
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${account.type === 'ASSET' ? 'bg-blue-100 text-blue-800' :
+                account.type === 'LIABILITY' ? 'bg-red-100 text-red-800' :
+                  account.type === 'INCOME' ? 'bg-green-100 text-green-800' :
+                    'bg-yellow-100 text-yellow-800'
+              }`}>
               {account.type}
             </span>
             {account.gstNumber && (
@@ -144,8 +150,8 @@ export default function LedgerDetailPage() {
           <Button variant="secondary" size="sm">
             Export PDF
           </Button>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             size="sm"
             onClick={() => exportLedgerToExcel(account.name, entries, openingBalance, closingBalance)}
           >
@@ -161,10 +167,10 @@ export default function LedgerDetailPage() {
             <CardTitle className="text-sm">Opening Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-gray-900">{formatCurrency(openingBalance)}</p>
+            <p className="text-2xl font-bold text-gray-900 truncate" title={formatCurrency(openingBalance)}>{formatLargeCurrency(openingBalance)}</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Total Entries</CardTitle>
@@ -173,14 +179,14 @@ export default function LedgerDetailPage() {
             <p className="text-2xl font-bold text-gray-900">{entries.length}</p>
           </CardContent>
         </Card>
-        
+
         <Card className={closingBalance >= 0 ? 'bg-green-50' : 'bg-red-50'}>
           <CardHeader>
             <CardTitle className="text-sm">Closing Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-2xl font-bold ${closingBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {formatCurrency(Math.abs(closingBalance))}
+            <p className={`text-2xl font-bold ${closingBalance >= 0 ? 'text-green-600' : 'text-red-600'} truncate`} title={formatCurrency(closingBalance)}>
+              {formatLargeCurrency(Math.abs(closingBalance))}
             </p>
           </CardContent>
         </Card>
@@ -248,8 +254,8 @@ export default function LedgerDetailPage() {
                     </td>
                     <td className="px-4 py-3"></td>
                     <td className="px-4 py-3"></td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900">
-                      {formatCurrency(openingBalance)}
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 truncate" title={formatCurrency(openingBalance)}>
+                      {formatLargeCurrency(openingBalance)}
                     </td>
                   </tr>
 
@@ -278,14 +284,14 @@ export default function LedgerDetailPage() {
                           </div>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-right text-gray-900">
-                        {entry.debit > 0 ? formatCurrency(entry.debit) : '-'}
+                      <td className="px-4 py-3 text-sm text-right text-gray-900 truncate" title={entry.debit > 0 ? formatCurrency(entry.debit) : ''}>
+                        {entry.debit > 0 ? formatLargeCurrency(entry.debit) : '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-right text-gray-900">
-                        {entry.credit > 0 ? formatCurrency(entry.credit) : '-'}
+                      <td className="px-4 py-3 text-sm text-right text-gray-900 truncate" title={entry.credit > 0 ? formatCurrency(entry.credit) : ''}>
+                        {entry.credit > 0 ? formatLargeCurrency(entry.credit) : '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-right font-medium text-gray-900">
-                        {formatCurrency(entry.runningBalance)}
+                      <td className="px-4 py-3 text-sm text-right font-medium text-gray-900 truncate" title={formatCurrency(entry.runningBalance)}>
+                        {formatLargeCurrency(entry.runningBalance)}
                       </td>
                     </tr>
                   ))}
@@ -297,8 +303,8 @@ export default function LedgerDetailPage() {
                     </td>
                     <td className="px-4 py-3"></td>
                     <td className="px-4 py-3"></td>
-                    <td className={`px-4 py-3 text-sm text-right ${closingBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatCurrency(Math.abs(closingBalance))}
+                    <td className={`px-4 py-3 text-sm text-right ${closingBalance >= 0 ? 'text-green-600' : 'text-red-600'} truncate`} title={formatCurrency(closingBalance)}>
+                      {formatLargeCurrency(Math.abs(closingBalance))}
                     </td>
                   </tr>
                 </tbody>

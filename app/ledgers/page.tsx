@@ -72,6 +72,13 @@ export default function LedgersPage() {
     }
   };
 
+  const formatLargeCurrency = (amount: number) => {
+    if (Math.abs(amount) >= 1e11) {
+      return `₹${amount.toExponential(2)}`;
+    }
+    return formatCurrency(amount);
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -105,8 +112,8 @@ export default function LedgersPage() {
               key={type}
               onClick={() => setFilter(type)}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filter === type
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-700'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-700'
                 }`}
             >
               {type}
@@ -147,8 +154,8 @@ export default function LedgersPage() {
 
                   <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                     <p className="text-xs text-gray-500 dark:text-gray-400">Opening Balance</p>
-                    <p className="text-lg font-bold text-gray-900 dark:text-white">
-                      {formatCurrency(account.openingBalance)}
+                    <p className="text-lg font-bold text-gray-900 dark:text-white truncate" title={formatCurrency(account.openingBalance)}>
+                      {formatLargeCurrency(account.openingBalance)}
                     </p>
                   </div>
                 </CardContent>

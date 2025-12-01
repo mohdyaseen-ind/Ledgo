@@ -105,6 +105,13 @@ export default function DashboardPage() {
     }
   };
 
+  const formatLargeCurrency = (amount: number) => {
+    if (Math.abs(amount) >= 1e11) {
+      return `₹${amount.toExponential(2)}`;
+    }
+    return formatCurrency(amount);
+  };
+
   const generateSalesTrend = (vouchers: any[]) => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const now = new Date();
@@ -171,7 +178,7 @@ export default function DashboardPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Total Sales (This Month)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{formatCurrency(data.totalSales)}</p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400 truncate" title={formatCurrency(data.totalSales)}>{formatLargeCurrency(data.totalSales)}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">↑ 12% from last month</p>
           </CardContent>
         </Card>
@@ -181,7 +188,7 @@ export default function DashboardPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Total Purchases</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{formatCurrency(data.totalPurchases)}</p>
+            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 truncate" title={formatCurrency(data.totalPurchases)}>{formatLargeCurrency(data.totalPurchases)}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">↑ 8% from last month</p>
           </CardContent>
         </Card>
@@ -191,10 +198,10 @@ export default function DashboardPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Net Profit</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-3xl font-bold ${data.netProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-              {formatCurrency(Math.abs(data.netProfit))}
+            <p className={`text-3xl font-bold ${data.netProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} truncate`} title={formatCurrency(data.netProfit)}>
+              {formatLargeCurrency(Math.abs(data.netProfit))}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Profit margin: {((data.netProfit / data.totalSales) * 100).toFixed(1)}%</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Profit margin: {data.totalSales > 0 ? ((data.netProfit / data.totalSales) * 100).toFixed(1) : 0}%</p>
           </CardContent>
         </Card>
 
@@ -203,7 +210,7 @@ export default function DashboardPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Cash Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">{formatCurrency(data.cashBalance)}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white truncate" title={formatCurrency(data.cashBalance)}>{formatLargeCurrency(data.cashBalance)}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Available in bank</p>
           </CardContent>
         </Card>
@@ -267,8 +274,8 @@ export default function DashboardPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Outstanding Receivables</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">
-              {formatCurrency(data.outstandingReceivables)}
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2 truncate" title={formatCurrency(data.outstandingReceivables)}>
+              {formatLargeCurrency(data.outstandingReceivables)}
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">Money customers owe us</p>
           </CardContent>
@@ -279,8 +286,8 @@ export default function DashboardPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Outstanding Payables</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">
-              {formatCurrency(data.outstandingPayables)}
+            <p className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2 truncate" title={formatCurrency(data.outstandingPayables)}>
+              {formatLargeCurrency(data.outstandingPayables)}
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">Money we owe suppliers</p>
           </CardContent>
@@ -291,8 +298,8 @@ export default function DashboardPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">GST Liability</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-2xl font-bold ${data.gstLiability > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'} mb-2`}>
-              {formatCurrency(Math.abs(data.gstLiability))}
+            <p className={`text-2xl font-bold ${data.gstLiability > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'} mb-2 truncate`} title={formatCurrency(data.gstLiability)}>
+              {formatLargeCurrency(Math.abs(data.gstLiability))}
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               {data.gstLiability > 0 ? 'To be paid' : 'Refundable'}

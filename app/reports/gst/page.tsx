@@ -78,6 +78,13 @@ export default function GSTPage() {
     fetchGST();
   };
 
+  const formatLargeCurrency = (amount: number) => {
+    if (Math.abs(amount) >= 1e11) {
+      return `₹${amount.toExponential(2)}`;
+    }
+    return formatCurrency(amount);
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -162,7 +169,7 @@ export default function GSTPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Output GST (Sales)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{formatCurrency(outputGST)}</p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400 truncate" title={formatCurrency(outputGST)}>{formatLargeCurrency(outputGST)}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">GST collected from customers</p>
           </CardContent>
         </Card>
@@ -172,7 +179,7 @@ export default function GSTPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Input GST (Purchases)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{formatCurrency(inputGST)}</p>
+            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 truncate" title={formatCurrency(inputGST)}>{formatLargeCurrency(inputGST)}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">GST paid to suppliers</p>
           </CardContent>
         </Card>
@@ -182,8 +189,8 @@ export default function GSTPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Net GST ({status})</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-3xl font-bold ${netGST > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}`}>
-              {formatCurrency(Math.abs(netGST))}
+            <p className={`text-3xl font-bold ${netGST > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'} truncate`} title={formatCurrency(netGST)}>
+              {formatLargeCurrency(Math.abs(netGST))}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               {netGST > 0 ? 'Amount to pay to government' : 'Refund claimable'}
@@ -224,9 +231,9 @@ export default function GSTPage() {
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{formatDate(voucher.date)}</td>
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{voucher.party}</td>
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400 font-mono text-xs">{voucher.gstNumber}</td>
-                      <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">{formatCurrency(voucher.amount)}</td>
-                      <td className="px-4 py-3 text-sm text-right text-green-600 dark:text-green-400 font-medium">{formatCurrency(voucher.gst)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white">{formatCurrency(voucher.total)}</td>
+                      <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white truncate" title={formatCurrency(voucher.amount)}>{formatLargeCurrency(voucher.amount)}</td>
+                      <td className="px-4 py-3 text-sm text-right text-green-600 dark:text-green-400 font-medium truncate" title={formatCurrency(voucher.gst)}>{formatLargeCurrency(voucher.gst)}</td>
+                      <td className="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white truncate" title={formatCurrency(voucher.total)}>{formatLargeCurrency(voucher.total)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -272,9 +279,9 @@ export default function GSTPage() {
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{formatDate(voucher.date)}</td>
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{voucher.party}</td>
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400 font-mono text-xs">{voucher.gstNumber}</td>
-                      <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">{formatCurrency(voucher.amount)}</td>
-                      <td className="px-4 py-3 text-sm text-right text-blue-600 dark:text-blue-400 font-medium">{formatCurrency(voucher.gst)}</td>
-                      <td className="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white">{formatCurrency(voucher.total)}</td>
+                      <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white truncate" title={formatCurrency(voucher.amount)}>{formatLargeCurrency(voucher.amount)}</td>
+                      <td className="px-4 py-3 text-sm text-right text-blue-600 dark:text-blue-400 font-medium truncate" title={formatCurrency(voucher.gst)}>{formatLargeCurrency(voucher.gst)}</td>
+                      <td className="px-4 py-3 text-sm text-right font-semibold text-gray-900 dark:text-white truncate" title={formatCurrency(voucher.total)}>{formatLargeCurrency(voucher.total)}</td>
                     </tr>
                   ))}
                 </tbody>

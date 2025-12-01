@@ -10,7 +10,7 @@ function generateVoucherNumber(type: string, count: number): string {
     PAYMENT: 'PY',
     RECEIPT: 'RC',
   }[type] || 'VO';
-  
+
   return `${prefix}-${String(count + 1).padStart(4, '0')}`;
 }
 
@@ -27,9 +27,10 @@ export const createVoucher = async (req: Request, res: Response) => {
       expenseAccountId, // For direct payment
       incomeAccountId, // For direct receipt
     } = req.body;
+    const userId = (req as any).user.userId;
 
     // Generate voucher number
-    const count = await prisma.voucher.count({ where: { type } });
+    const count = await prisma.voucher.count({ where: { type, userId } });
     const voucherNumber = generateVoucherNumber(type, count);
 
     // Calculate total amount from items
@@ -45,7 +46,7 @@ export const createVoucher = async (req: Request, res: Response) => {
         item.amount = itemAmount;
         item.gstAmount = itemGst;
         item.total = itemAmount + itemGst;
-        
+
         baseAmount += itemAmount;
         gstAmount += itemGst;
         totalAmount += item.total;
@@ -55,18 +56,30 @@ export const createVoucher = async (req: Request, res: Response) => {
       totalAmount = req.body.amount || 0;
     }
 
-    // Get account IDs for ledger entries
-    const salesAccount = await prisma.account.findFirst({ 
-      where: { name: 'Sales Account' } 
+    // Get account IDs for ledger entries (scoped to user or global)
+    const salesAccount = await prisma.account.findFirst({
+      where: {
+        name: 'Sales Account',
+        OR: [{ userId }, { userId: null }]
+      }
     });
-    const purchaseAccount = await prisma.account.findFirst({ 
-      where: { name: 'Purchase Account' } 
+    const purchaseAccount = await prisma.account.findFirst({
+      where: {
+        name: 'Purchase Account',
+        OR: [{ userId }, { userId: null }]
+      }
     });
-    const outputGstAccount = await prisma.account.findFirst({ 
-      where: { name: 'Output GST' } 
+    const outputGstAccount = await prisma.account.findFirst({
+      where: {
+        name: 'Output GST',
+        OR: [{ userId }, { userId: null }]
+      }
     });
-    const inputGstAccount = await prisma.account.findFirst({ 
-      where: { name: 'Input GST' } 
+    const inputGstAccount = await prisma.account.findFirst({
+      where: {
+        name: 'Input GST',
+        OR: [{ userId }, { userId: null }]
+      }
     });
 
     // Generate ledger entries based on voucher type
@@ -74,24 +87,30 @@ export const createVoucher = async (req: Request, res: Response) => {
 
     switch (type) {
       case 'SALES':
+        if (!salesAccount || !outputGstAccount) {
+          return res.status(400).json({ error: 'Sales or Output GST account not found' });
+        }
         ledgerEntries = AccountingEngine.createSalesEntries(
           partyId,
           totalAmount,
           baseAmount,
           gstAmount,
-          salesAccount!.id,
-          outputGstAccount!.id
+          salesAccount.id,
+          outputGstAccount.id
         );
         break;
 
       case 'PURCHASE':
+        if (!purchaseAccount || !inputGstAccount) {
+          return res.status(400).json({ error: 'Purchase or Input GST account not found' });
+        }
         ledgerEntries = AccountingEngine.createPurchaseEntries(
           partyId,
           totalAmount,
           baseAmount,
           gstAmount,
-          purchaseAccount!.id,
-          inputGstAccount!.id
+          purchaseAccount.id,
+          inputGstAccount.id
         );
         break;
 
@@ -127,6 +146,7 @@ export const createVoucher = async (req: Request, res: Response) => {
       // Create voucher
       const newVoucher = await tx.voucher.create({
         data: {
+          userId,
           voucherNumber,
           type,
           date: new Date(date),
@@ -142,12 +162,12 @@ export const createVoucher = async (req: Request, res: Response) => {
           data: items.map((item: any) => ({
             voucherId: newVoucher.id,
             description: item.description,
-            quantity: item.quantity,
-            rate: item.rate,
-            amount: item.amount,
-            gstRate: item.gstRate,
-            gstAmount: item.gstAmount,
-            total: item.total,
+            quantity: parseFloat(item.quantity),
+            rate: parseFloat(item.rate),
+            amount: parseFloat(item.amount),
+            gstRate: parseFloat(item.gstRate),
+            gstAmount: parseFloat(item.gstAmount),
+            total: parseFloat(item.total),
           })),
         });
       }
@@ -155,6 +175,7 @@ export const createVoucher = async (req: Request, res: Response) => {
       // Create ledger entries
       await tx.ledgerEntry.createMany({
         data: ledgerEntries.map((entry: any) => ({
+          userId,
           voucherId: newVoucher.id,
           accountId: entry.accountId,
           date: new Date(date),
@@ -169,7 +190,7 @@ export const createVoucher = async (req: Request, res: Response) => {
     res.status(201).json(voucher);
   } catch (error) {
     console.error('Error creating voucher:', error);
-    res.status(500).json({ error: 'Failed to create voucher' });
+    res.status(500).json({ error: 'Failed to create voucher', details: (error as any).message });
   }
 };
 
@@ -177,8 +198,10 @@ export const createVoucher = async (req: Request, res: Response) => {
 export const getVouchers = async (req: Request, res: Response) => {
   try {
     const { type, startDate, endDate } = req.query;
+    const userId = (req as any).user.userId;
 
     const where: any = {
+      userId,
       isDeleted: false,
     };
 
@@ -212,9 +235,10 @@ export const getVouchers = async (req: Request, res: Response) => {
 export const getVoucher = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const userId = (req as any).user.userId;
 
-    const voucher = await prisma.voucher.findUnique({
-      where: { id },
+    const voucher = await prisma.voucher.findFirst({
+      where: { id, userId },
       include: {
         party: true,
         items: true,
@@ -241,6 +265,16 @@ export const getVoucher = async (req: Request, res: Response) => {
 export const deleteVoucher = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const userId = (req as any).user.userId;
+
+    // Verify ownership before deleting
+    const existingVoucher = await prisma.voucher.findFirst({
+      where: { id, userId },
+    });
+
+    if (!existingVoucher) {
+      return res.status(404).json({ error: 'Voucher not found' });
+    }
 
     const voucher = await prisma.voucher.update({
       where: { id },

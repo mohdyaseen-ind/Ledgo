@@ -229,7 +229,7 @@ export default function ReceiptVoucherPage() {
                 step="0.01"
                 placeholder="0.00"
                 required
-                className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+                className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white min-w-0"
               />
             </div>
 

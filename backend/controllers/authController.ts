@@ -12,6 +12,37 @@ const generateAccessToken = (userId: string) =>
 
 const generateRefreshTokenString = () => crypto.randomBytes(64).toString('hex');
 
+// Helper to create default accounts
+const createDefaultAccounts = async (userId: string) => {
+  const defaults = [
+    { name: 'Cash in Hand', type: 'ASSET', openingBalance: 0 },
+    { name: 'Bank Account', type: 'ASSET', openingBalance: 0 },
+    { name: 'Sales Account', type: 'INCOME' },
+    { name: 'Purchase Account', type: 'EXPENSE' },
+    { name: 'Output GST', type: 'LIABILITY' },
+    { name: 'Input GST', type: 'ASSET' },
+    { name: 'Capital Account', type: 'LIABILITY' },
+    { name: 'General Expense', type: 'EXPENSE' },
+    // Sample Customers
+    { name: 'Reliance Industries Ltd', type: 'ASSET', isParty: true, gstNumber: '27AAACR5055K1Z5' },
+    { name: 'Tata Consultancy Services', type: 'ASSET', isParty: true, gstNumber: '27AAACT2727Q1ZV' },
+    { name: 'Infosys Limited', type: 'ASSET', isParty: true, gstNumber: '29AAACI1681G1ZA' },
+    { name: 'Wipro Limited', type: 'ASSET', isParty: true, gstNumber: '29AAACW3775F000' },
+    { name: 'HCL Technologies', type: 'ASSET', isParty: true, gstNumber: '06AAACH2702H1Z0' },
+    // Sample Suppliers
+    { name: 'ABC Suppliers', type: 'LIABILITY', isParty: true, gstNumber: '27AABCA1234B1Z1' },
+    { name: 'XYZ Traders', type: 'LIABILITY', isParty: true, gstNumber: '27AABCX5678C1Z2' },
+    { name: 'PQR Enterprises', type: 'LIABILITY', isParty: true, gstNumber: '29AABCP9012D1Z3' },
+  ];
+
+  await prisma.account.createMany({
+    data: defaults.map(acc => ({
+      ...acc,
+      userId,
+    })),
+  });
+};
+
 // Signup
 export const signup = async (req: Request, res: Response) => {
   const { name, email, password, role } = req.body;
@@ -21,13 +52,38 @@ export const signup = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Email already taken' });
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    const newUser = await prisma.user.create({
-      data: {
-        name,
-        email,
-        passwordHash,
-        role: role || 'USER' // Default role if not provided
-      }
+
+    // Create user and default accounts in transaction
+    const newUser = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          name,
+          email,
+          passwordHash,
+          role: role || 'USER'
+        }
+      });
+
+      // Create default accounts
+      const defaults = [
+        { name: 'Cash in Hand', type: 'ASSET', openingBalance: 0 },
+        { name: 'Bank Account', type: 'ASSET', openingBalance: 0 },
+        { name: 'Sales Account', type: 'INCOME' },
+        { name: 'Purchase Account', type: 'EXPENSE' },
+        { name: 'Output GST', type: 'LIABILITY' },
+        { name: 'Input GST', type: 'ASSET' },
+        { name: 'Capital Account', type: 'LIABILITY' },
+        { name: 'General Expense', type: 'EXPENSE' },
+      ];
+
+      await tx.account.createMany({
+        data: defaults.map(acc => ({
+          ...acc,
+          userId: user.id,
+        })),
+      });
+
+      return user;
     });
 
     const accessToken = generateAccessToken(newUser.id);
@@ -40,7 +96,7 @@ export const signup = async (req: Request, res: Response) => {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // true for HTTPS, false for local dev
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });

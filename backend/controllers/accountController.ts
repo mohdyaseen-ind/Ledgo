@@ -5,8 +5,14 @@ import prisma from '../lib/prisma';
 export const getAccounts = async (req: Request, res: Response) => {
   try {
     const { type, isParty }: any = req.query;
+    const userId = (req as any).user.userId;
 
-    const where: any = {};
+    const where: any = {
+      OR: [
+        { userId },
+        { userId: null }
+      ]
+    };
     if (type) where.type = type;
     if (isParty !== undefined) where.isParty = isParty === 'true';
 
@@ -26,11 +32,19 @@ export const getAccounts = async (req: Request, res: Response) => {
 export const getAccount = async (req: Request, res: Response) => {
   try {
     const { id }: any = req.params;
+    const userId = (req as any).user.userId;
 
-    const account = await prisma.account.findUnique({
-      where: { id },
+    const account = await prisma.account.findFirst({
+      where: {
+        id,
+        OR: [
+          { userId },
+          { userId: null }
+        ]
+      },
       include: {
         ledgerEntries: {
+          where: { userId }, // Only fetch ledger entries for this user
           include: {
             voucher: true,
           },
@@ -62,9 +76,11 @@ export const getAccount = async (req: Request, res: Response) => {
 export const createAccount = async (req: Request, res: Response) => {
   try {
     const { name, type, isParty, gstNumber, openingBalance }: any = req.body;
+    const userId = (req as any).user.userId;
 
     const account = await prisma.account.create({
       data: {
+        userId,
         name,
         type,
         isParty: isParty || false,

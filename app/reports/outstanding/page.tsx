@@ -44,6 +44,13 @@ export default function OutstandingPage() {
     }
   };
 
+  const formatLargeCurrency = (amount: number) => {
+    if (Math.abs(amount) >= 1e11) {
+      return `₹${amount.toExponential(2)}`;
+    }
+    return formatCurrency(amount);
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -97,7 +104,7 @@ export default function OutstandingPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Total Receivables</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{formatCurrency(totalReceivable)}</p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400 truncate" title={formatCurrency(totalReceivable)}>{formatLargeCurrency(totalReceivable)}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               {receivables.length} customer{receivables.length !== 1 ? 's' : ''} owe us
             </p>
@@ -109,7 +116,7 @@ export default function OutstandingPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Total Payables</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-red-600 dark:text-red-400">{formatCurrency(totalPayable)}</p>
+            <p className="text-3xl font-bold text-red-600 dark:text-red-400 truncate" title={formatCurrency(totalPayable)}>{formatLargeCurrency(totalPayable)}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               We owe {payables.length} supplier{payables.length !== 1 ? 's' : ''}
             </p>
@@ -121,8 +128,8 @@ export default function OutstandingPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Net Position</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-3xl font-bold ${netPosition >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-              {formatCurrency(Math.abs(netPosition))}
+            <p className={`text-3xl font-bold ${netPosition >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} truncate`} title={formatCurrency(netPosition)}>
+              {formatLargeCurrency(Math.abs(netPosition))}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               {netPosition >= 0 ? 'Net receivable' : 'Net payable'}
@@ -155,8 +162,8 @@ export default function OutstandingPage() {
                           )}
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                            {formatCurrency(party.balance)}
+                          <p className="text-lg font-bold text-green-600 dark:text-green-400 truncate" title={formatCurrency(party.balance)}>
+                            {formatLargeCurrency(party.balance)}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Outstanding</p>
                         </div>
@@ -166,7 +173,7 @@ export default function OutstandingPage() {
                 <div className="px-4 py-4 bg-green-50 dark:bg-green-900/20 font-bold border-t border-green-100 dark:border-green-900/30">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-900 dark:text-white">Total Receivables</span>
-                    <span className="text-xl text-green-600 dark:text-green-400">{formatCurrency(totalReceivable)}</span>
+                    <span className="text-xl text-green-600 dark:text-green-400 truncate" title={formatCurrency(totalReceivable)}>{formatLargeCurrency(totalReceivable)}</span>
                   </div>
                 </div>
               </div>
@@ -202,8 +209,8 @@ export default function OutstandingPage() {
                           )}
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-red-600 dark:text-red-400">
-                            {formatCurrency(party.balance)}
+                          <p className="text-lg font-bold text-red-600 dark:text-red-400 truncate" title={formatCurrency(party.balance)}>
+                            {formatLargeCurrency(party.balance)}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Outstanding</p>
                         </div>
@@ -213,7 +220,7 @@ export default function OutstandingPage() {
                 <div className="px-4 py-4 bg-red-50 dark:bg-red-900/20 font-bold border-t border-red-100 dark:border-red-900/30">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-900 dark:text-white">Total Payables</span>
-                    <span className="text-xl text-red-600 dark:text-red-400">{formatCurrency(totalPayable)}</span>
+                    <span className="text-xl text-red-600 dark:text-red-400 truncate" title={formatCurrency(totalPayable)}>{formatLargeCurrency(totalPayable)}</span>
                   </div>
                 </div>
               </div>
@@ -239,7 +246,7 @@ export default function OutstandingPage() {
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Focus on collecting from top {Math.min(3, receivables.length)} customers who collectively owe{' '}
                 {receivables.length > 0
-                  ? formatCurrency(receivables.slice(0, 3).reduce((sum, r) => sum + r.balance, 0))
+                  ? formatLargeCurrency(receivables.slice(0, 3).reduce((sum, r) => sum + r.balance, 0))
                   : '₹0'}
               </p>
             </div>
@@ -248,7 +255,7 @@ export default function OutstandingPage() {
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Top {Math.min(3, payables.length)} suppliers require payment of{' '}
                 {payables.length > 0
-                  ? formatCurrency(payables.slice(0, 3).reduce((sum, p) => sum + p.balance, 0))
+                  ? formatLargeCurrency(payables.slice(0, 3).reduce((sum, p) => sum + p.balance, 0))
                   : '₹0'}
               </p>
             </div>

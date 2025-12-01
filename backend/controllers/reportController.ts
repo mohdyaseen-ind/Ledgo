@@ -5,11 +5,13 @@ import prisma from '../lib/prisma';
 export const getTrialBalance = async (req: Request, res: Response) => {
   try {
     const { date } = req.query;
+    const userId = (req as any).user.userId;
     const endDate = date ? new Date(date as string) : new Date();
 
-    // Get all ledger entries up to date
+    // Get all ledger entries up to date (scoped to user)
     const entries = await prisma.ledgerEntry.findMany({
       where: {
+        userId,
         date: { lte: endDate },
         voucher: { isDeleted: false },
       },
@@ -33,8 +35,12 @@ export const getTrialBalance = async (req: Request, res: Response) => {
       balances.set(entry.accountId, existing);
     });
 
-    // Add opening balances
-    const accounts = await prisma.account.findMany();
+    // Add opening balances (scoped to user or global)
+    const accounts = await prisma.account.findMany({
+      where: {
+        OR: [{ userId }, { userId: null }]
+      }
+    });
     accounts.forEach((account: any) => {
       if (account.openingBalance !== 0) {
         const existing = balances.get(account.id) || {
@@ -78,11 +84,13 @@ export const getTrialBalance = async (req: Request, res: Response) => {
 export const getProfitAndLoss = async (req: Request, res: Response) => {
   try {
     const { startDate, endDate } = req.query;
+    const userId = (req as any).user.userId;
     const start = startDate ? new Date(startDate as string) : new Date(new Date().getFullYear(), 0, 1);
     const end = endDate ? new Date(endDate as string) : new Date();
 
     const entries = await prisma.ledgerEntry.findMany({
       where: {
+        userId,
         date: { gte: start, lte: end },
         voucher: { isDeleted: false },
       },
@@ -145,6 +153,7 @@ export const getProfitAndLoss = async (req: Request, res: Response) => {
 export const getGSTReport = async (req: Request, res: Response) => {
   try {
     const { month, year } = req.query;
+    const userId = (req as any).user.userId;
 
     const targetMonth = month ? parseInt(month as string) - 1 : new Date().getMonth();
     const targetYear = year ? parseInt(year as string) : new Date().getFullYear();
@@ -154,6 +163,7 @@ export const getGSTReport = async (req: Request, res: Response) => {
 
     const vouchers = await prisma.voucher.findMany({
       where: {
+        userId,
         date: { gte: startDate, lte: endDate },
         type: { in: ['SALES', 'PURCHASE'] },
         isDeleted: false,
@@ -215,11 +225,16 @@ export const getGSTReport = async (req: Request, res: Response) => {
 // OUTSTANDING REPORT
 export const getOutstandingReport = async (req: Request, res: Response) => {
   try {
+    const userId = (req as any).user.userId;
     const parties = await prisma.account.findMany({
-      where: { isParty: true },
+      where: {
+        isParty: true,
+        OR: [{ userId }, { userId: null }]
+      },
       include: {
         ledgerEntries: {
           where: {
+            userId, // Only user's entries
             voucher: { isDeleted: false },
           },
         },
@@ -274,9 +289,11 @@ export const getLedger = async (req: Request, res: Response) => {
   try {
     const { accountId } = req.params;
     const { startDate, endDate } = req.query;
+    const userId = (req as any).user.userId;
 
     const where: any = {
       accountId,
+      userId,
       voucher: { isDeleted: false },
     };
 
@@ -299,8 +316,11 @@ export const getLedger = async (req: Request, res: Response) => {
       orderBy: { date: 'asc' },
     });
 
-    const account = await prisma.account.findUnique({
-      where: { id: accountId },
+    const account = await prisma.account.findFirst({
+      where: {
+        id: accountId,
+        OR: [{ userId }, { userId: null }]
+      },
     });
 
     if (!account) {

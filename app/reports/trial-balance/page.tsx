@@ -44,6 +44,13 @@ export default function TrialBalancePage() {
     }
   };
 
+  const formatLargeCurrency = (amount: number) => {
+    if (Math.abs(amount) >= 1e11) {
+      return `₹${amount.toExponential(2)}`;
+    }
+    return formatCurrency(amount);
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -113,8 +120,8 @@ export default function TrialBalancePage() {
             </div>
             <div>
               <p className="font-semibold text-red-900 dark:text-red-100">Books are not balanced!</p>
-              <p className="text-sm text-red-700 dark:text-red-300">
-                Difference: {formatCurrency(Math.abs(totalDebit - totalCredit))}
+              <p className="text-sm text-red-700 dark:text-red-300 truncate" title={formatCurrency(Math.abs(totalDebit - totalCredit))}>
+                Difference: {formatLargeCurrency(Math.abs(totalDebit - totalCredit))}
               </p>
             </div>
           </div>
@@ -150,18 +157,18 @@ export default function TrialBalancePage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       <span className={`px-2 py-1 rounded-full text-xs ${entry.accountType === 'ASSET' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
-                          entry.accountType === 'LIABILITY' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
-                            entry.accountType === 'INCOME' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
-                              'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                        entry.accountType === 'LIABILITY' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                          entry.accountType === 'INCOME' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
                         }`}>
                         {entry.accountType}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white">
-                      {entry.debit > 0 ? formatCurrency(entry.debit) : '-'}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white truncate" title={entry.debit > 0 ? formatCurrency(entry.debit) : ''}>
+                      {entry.debit > 0 ? formatLargeCurrency(entry.debit) : '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white">
-                      {entry.credit > 0 ? formatCurrency(entry.credit) : '-'}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-white truncate" title={entry.credit > 0 ? formatCurrency(entry.credit) : ''}>
+                      {entry.credit > 0 ? formatLargeCurrency(entry.credit) : '-'}
                     </td>
                   </tr>
                 ))}
@@ -171,11 +178,11 @@ export default function TrialBalancePage() {
                   <td colSpan={2} className="px-6 py-4 text-sm text-gray-900 dark:text-white">
                     Total
                   </td>
-                  <td className="px-6 py-4 text-sm text-right text-gray-900 dark:text-white">
-                    {formatCurrency(totalDebit)}
+                  <td className="px-6 py-4 text-sm text-right text-gray-900 dark:text-white truncate" title={formatCurrency(totalDebit)}>
+                    {formatLargeCurrency(totalDebit)}
                   </td>
-                  <td className="px-6 py-4 text-sm text-right text-gray-900 dark:text-white">
-                    {formatCurrency(totalCredit)}
+                  <td className="px-6 py-4 text-sm text-right text-gray-900 dark:text-white truncate" title={formatCurrency(totalCredit)}>
+                    {formatLargeCurrency(totalCredit)}
                   </td>
                 </tr>
                 {!balanced && (
@@ -183,8 +190,8 @@ export default function TrialBalancePage() {
                     <td colSpan={2} className="px-6 py-3 text-sm text-red-900 dark:text-red-300">
                       Difference
                     </td>
-                    <td colSpan={2} className="px-6 py-3 text-sm text-right text-red-900 dark:text-red-300">
-                      {formatCurrency(Math.abs(totalDebit - totalCredit))}
+                    <td colSpan={2} className="px-6 py-3 text-sm text-right text-red-900 dark:text-red-300 truncate" title={formatCurrency(Math.abs(totalDebit - totalCredit))}>
+                      {formatLargeCurrency(Math.abs(totalDebit - totalCredit))}
                     </td>
                   </tr>
                 )}
@@ -201,7 +208,7 @@ export default function TrialBalancePage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Total Debits</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(totalDebit)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white truncate" title={formatCurrency(totalDebit)}>{formatLargeCurrency(totalDebit)}</p>
           </CardContent>
         </Card>
 
@@ -210,7 +217,7 @@ export default function TrialBalancePage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Total Credits</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(totalCredit)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white truncate" title={formatCurrency(totalCredit)}>{formatLargeCurrency(totalCredit)}</p>
           </CardContent>
         </Card>
 

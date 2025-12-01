@@ -64,6 +64,13 @@ export default function PLPage() {
     fetchPL();
   };
 
+  const formatLargeCurrency = (amount: number) => {
+    if (Math.abs(amount) >= 1e11) {
+      return `₹${amount.toExponential(2)}`;
+    }
+    return formatCurrency(amount);
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -148,7 +155,7 @@ export default function PLPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Total Income</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400">{formatCurrency(totalIncome)}</p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400 truncate" title={formatCurrency(totalIncome)}>{formatLargeCurrency(totalIncome)}</p>
           </CardContent>
         </Card>
 
@@ -157,7 +164,7 @@ export default function PLPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Total Expenses</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-red-600 dark:text-red-400">{formatCurrency(totalExpenses)}</p>
+            <p className="text-3xl font-bold text-red-600 dark:text-red-400 truncate" title={formatCurrency(totalExpenses)}>{formatLargeCurrency(totalExpenses)}</p>
           </CardContent>
         </Card>
 
@@ -166,8 +173,8 @@ export default function PLPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Net {netProfit >= 0 ? 'Profit' : 'Loss'}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-3xl font-bold ${netProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-              {formatCurrency(Math.abs(netProfit))}
+            <p className={`text-3xl font-bold ${netProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} truncate`} title={formatCurrency(netProfit)}>
+              {formatLargeCurrency(Math.abs(netProfit))}
             </p>
           </CardContent>
         </Card>
@@ -196,8 +203,8 @@ export default function PLPage() {
                   incomeAccounts.map((account) => (
                     <tr key={account.accountId} className="hover:bg-gray-50 dark:hover:bg-slate-800">
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{account.accountName}</td>
-                      <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
-                        {formatCurrency(account.amount)}
+                      <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white truncate" title={formatCurrency(account.amount)}>
+                        {formatLargeCurrency(account.amount)}
                       </td>
                     </tr>
                   ))
@@ -212,8 +219,8 @@ export default function PLPage() {
               <tfoot className="bg-green-50 dark:bg-green-900/20 font-bold border-t border-green-100 dark:border-green-900/30">
                 <tr>
                   <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">Total Income</td>
-                  <td className="px-4 py-3 text-sm text-right text-green-600 dark:text-green-400">
-                    {formatCurrency(totalIncome)}
+                  <td className="px-4 py-3 text-sm text-right text-green-600 dark:text-green-400 truncate" title={formatCurrency(totalIncome)}>
+                    {formatLargeCurrency(totalIncome)}
                   </td>
                 </tr>
               </tfoot>
@@ -243,8 +250,8 @@ export default function PLPage() {
                   expenseAccounts.map((account) => (
                     <tr key={account.accountId} className="hover:bg-gray-50 dark:hover:bg-slate-800">
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{account.accountName}</td>
-                      <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
-                        {formatCurrency(account.amount)}
+                      <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white truncate" title={formatCurrency(account.amount)}>
+                        {formatLargeCurrency(account.amount)}
                       </td>
                     </tr>
                   ))
@@ -259,8 +266,8 @@ export default function PLPage() {
               <tfoot className="bg-red-50 dark:bg-red-900/20 font-bold border-t border-red-100 dark:border-red-900/30">
                 <tr>
                   <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">Total Expenses</td>
-                  <td className="px-4 py-3 text-sm text-right text-red-600 dark:text-red-400">
-                    {formatCurrency(totalExpenses)}
+                  <td className="px-4 py-3 text-sm text-right text-red-600 dark:text-red-400 truncate" title={formatCurrency(totalExpenses)}>
+                    {formatLargeCurrency(totalExpenses)}
                   </td>
                 </tr>
               </tfoot>
@@ -281,8 +288,8 @@ export default function PLPage() {
                 {netProfit >= 0 ? 'Income exceeds expenses' : 'Expenses exceed income'}
               </p>
             </div>
-            <div className={`text-4xl font-bold ${netProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-              {formatCurrency(Math.abs(netProfit))}
+            <div className={`text-4xl font-bold ${netProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} truncate`} title={formatCurrency(netProfit)}>
+              {formatLargeCurrency(Math.abs(netProfit))}
             </div>
           </div>
         </CardContent>

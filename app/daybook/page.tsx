@@ -65,6 +65,13 @@ export default function DayBookPage() {
     }
   };
 
+  const formatLargeCurrency = (amount: number) => {
+    if (Math.abs(amount) >= 1e11) {
+      return `₹${amount.toExponential(2)}`;
+    }
+    return formatCurrency(amount);
+  };
+
   // Calculate totals by type
   const salesTotal = vouchers
     .filter((v) => v.type === 'SALES')
@@ -146,7 +153,7 @@ export default function DayBookPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Sales</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatCurrency(salesTotal)}</p>
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400 truncate" title={formatCurrency(salesTotal)}>{formatLargeCurrency(salesTotal)}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {vouchers.filter((v) => v.type === 'SALES').length} vouchers
             </p>
@@ -158,7 +165,7 @@ export default function DayBookPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Purchases</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{formatCurrency(purchaseTotal)}</p>
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 truncate" title={formatCurrency(purchaseTotal)}>{formatLargeCurrency(purchaseTotal)}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {vouchers.filter((v) => v.type === 'PURCHASE').length} vouchers
             </p>
@@ -170,7 +177,7 @@ export default function DayBookPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Payments</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatCurrency(paymentTotal)}</p>
+            <p className="text-2xl font-bold text-red-600 dark:text-red-400 truncate" title={formatCurrency(paymentTotal)}>{formatLargeCurrency(paymentTotal)}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {vouchers.filter((v) => v.type === 'PAYMENT').length} vouchers
             </p>
@@ -182,7 +189,7 @@ export default function DayBookPage() {
             <CardTitle className="text-sm text-gray-600 dark:text-gray-400">Receipts</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{formatCurrency(receiptTotal)}</p>
+            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 truncate" title={formatCurrency(receiptTotal)}>{formatLargeCurrency(receiptTotal)}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {vouchers.filter((v) => v.type === 'RECEIPT').length} vouchers
             </p>
@@ -228,8 +235,8 @@ export default function DayBookPage() {
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                         {voucher.narration || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-white">
-                        {formatCurrency(voucher.totalAmount)}
+                      <td className="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-white truncate" title={formatCurrency(voucher.totalAmount)}>
+                        {formatLargeCurrency(voucher.totalAmount)}
                       </td>
                     </tr>
                   ))}
@@ -239,8 +246,8 @@ export default function DayBookPage() {
                     <td colSpan={4} className="px-4 py-3 text-sm text-gray-900 dark:text-white">
                       Total
                     </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
-                      {formatCurrency(vouchers.reduce((sum, v) => sum + v.totalAmount, 0))}
+                    <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white truncate" title={formatCurrency(vouchers.reduce((sum, v) => sum + v.totalAmount, 0))}>
+                      {formatLargeCurrency(vouchers.reduce((sum, v) => sum + v.totalAmount, 0))}
                     </td>
                   </tr>
                 </tfoot>
@@ -265,23 +272,23 @@ export default function DayBookPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Money In</p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {formatCurrency(salesTotal + receiptTotal)}
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400 truncate" title={formatCurrency(salesTotal + receiptTotal)}>
+                  {formatLargeCurrency(salesTotal + receiptTotal)}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Money Out</p>
-                <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                  {formatCurrency(purchaseTotal + paymentTotal)}
+                <p className="text-2xl font-bold text-red-600 dark:text-red-400 truncate" title={formatCurrency(purchaseTotal + paymentTotal)}>
+                  {formatLargeCurrency(purchaseTotal + paymentTotal)}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Net Cash Flow</p>
                 <p className={`text-2xl font-bold ${salesTotal + receiptTotal - purchaseTotal - paymentTotal >= 0
-                    ? 'text-green-600 dark:text-green-400'
-                    : 'text-red-600 dark:text-red-400'
-                  }`}>
-                  {formatCurrency(Math.abs(salesTotal + receiptTotal - purchaseTotal - paymentTotal))}
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'
+                  } truncate`} title={formatCurrency(Math.abs(salesTotal + receiptTotal - purchaseTotal - paymentTotal))}>
+                  {formatLargeCurrency(Math.abs(salesTotal + receiptTotal - purchaseTotal - paymentTotal))}
                 </p>
               </div>
             </div>

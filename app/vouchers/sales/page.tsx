@@ -87,6 +87,16 @@ export default function SalesVoucherPage() {
     );
   };
 
+  const formatAmount = (val: number) => {
+    if (Math.abs(val) >= 1e11) {
+      return val.toExponential(2);
+    }
+    return val.toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   const addItem = () => {
     const newItem: Item = {
       id: Date.now().toString(),
@@ -220,7 +230,7 @@ export default function SalesVoucherPage() {
               </div>
 
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                <table className="w-full">
+                <table className="w-full table-fixed">
                   <thead className="bg-gray-50 dark:bg-slate-900/50">
                     <tr>
                       <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Description</th>
@@ -239,7 +249,7 @@ export default function SalesVoucherPage() {
                           <input
                             ref={(el) => { descRefs.current[item.id] = el; }}
                             type="text"
-                            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 min-w-0"
                             value={item.description}
                             onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
                             placeholder="Item description"
@@ -249,7 +259,7 @@ export default function SalesVoucherPage() {
                         <td className="px-3 py-2">
                           <input
                             type="number"
-                            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white"
+                            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white min-w-0"
                             value={item.quantity}
                             onChange={(e) => handleItemChange(item.id, 'quantity', e.target.value)}
                             min="0"
@@ -260,7 +270,7 @@ export default function SalesVoucherPage() {
                         <td className="px-3 py-2">
                           <input
                             type="number"
-                            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white"
+                            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white min-w-0"
                             value={item.rate}
                             onChange={(e) => handleItemChange(item.id, 'rate', e.target.value)}
                             min="0"
@@ -281,11 +291,11 @@ export default function SalesVoucherPage() {
                             <option value="28">28%</option>
                           </select>
                         </td>
-                        <td className="px-3 py-2 text-right text-sm text-gray-900 dark:text-gray-300">
-                          ₹{item.amount.toFixed(2)}
+                        <td className="px-3 py-2 text-right text-sm text-gray-900 dark:text-gray-300 truncate" title={`₹${formatAmount(item.amount)}`}>
+                          ₹{formatAmount(item.amount)}
                         </td>
-                        <td className="px-3 py-2 text-right font-medium text-gray-900 dark:text-white">
-                          ₹{item.total.toFixed(2)}
+                        <td className="px-3 py-2 text-right font-medium text-gray-900 dark:text-white truncate" title={`₹${formatAmount(item.total)}`}>
+                          ₹{formatAmount(item.total)}
                         </td>
                         <td className="px-3 py-2">
                           {items.length > 1 && (
@@ -306,18 +316,18 @@ export default function SalesVoucherPage() {
 
               {/* Totals */}
               <div className="mt-4 flex justify-end">
-                <div className="w-64 space-y-2">
+                <div className="min-w-[16rem] space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600 dark:text-gray-400">Base Amount:</span>
-                    <span className="font-medium text-gray-900 dark:text-white">₹{baseAmount.toFixed(2)}</span>
+                    <span className="font-medium text-gray-900 dark:text-white truncate ml-2" title={`₹${formatAmount(baseAmount)}`}>₹{formatAmount(baseAmount)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600 dark:text-gray-400">GST:</span>
-                    <span className="font-medium text-gray-900 dark:text-white">₹{totalGST.toFixed(2)}</span>
+                    <span className="font-medium text-gray-900 dark:text-white truncate ml-2" title={`₹${formatAmount(totalGST)}`}>₹{formatAmount(totalGST)}</span>
                   </div>
                   <div className="flex justify-between text-lg font-bold border-t border-gray-200 dark:border-gray-700 pt-2 text-gray-900 dark:text-white">
                     <span>Total:</span>
-                    <span>₹{totalAmount.toFixed(2)}</span>
+                    <span className="truncate ml-2" title={`₹${formatAmount(totalAmount)}`}>₹{formatAmount(totalAmount)}</span>
                   </div>
                 </div>
               </div>
