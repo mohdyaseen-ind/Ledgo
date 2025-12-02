@@ -39,8 +39,11 @@ export default function DayBookPage() {
       const result = await vouchersAPI.getAll({
         startDate: selectedDate,
         endDate: selectedDate,
+        limit: 1000, // Ensure we get all transactions for the day
       });
-      setVouchers(result);
+      // Handle paginated response structure { data, meta }
+      const vouchersData = Array.isArray(result) ? result : result.data;
+      setVouchers(vouchersData || []);
     } catch (error) {
       console.error('Error fetching day book:', error);
     } finally {

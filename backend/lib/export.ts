@@ -1,15 +1,17 @@
 // lib/export.ts
 
 import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export const exportToExcel = (data: any[], filename: string, sheetName: string = 'Sheet1') => {
   // Create worksheet
   const ws = XLSX.utils.json_to_sheet(data);
-  
+
   // Create workbook
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, sheetName);
-  
+
   // Generate file
   XLSX.writeFile(wb, `${filename}.xlsx`);
 };
@@ -21,7 +23,7 @@ export const exportTrialBalanceToExcel = (trialBalance: any[], totalDebit: numbe
     'Debit': entry.debit > 0 ? entry.debit : '',
     'Credit': entry.credit > 0 ? entry.credit : '',
   }));
-  
+
   // Add totals row
   data.push({
     'Account Name': 'TOTAL',
@@ -29,13 +31,13 @@ export const exportTrialBalanceToExcel = (trialBalance: any[], totalDebit: numbe
     'Debit': totalDebit,
     'Credit': totalCredit,
   });
-  
+
   exportToExcel(data, `Trial_Balance_${new Date().toISOString().split('T')[0]}`, 'Trial Balance');
 };
 
 export const exportPLToExcel = (incomeAccounts: any[], expenseAccounts: any[], totalIncome: number, totalExpenses: number, netProfit: number) => {
   const data: any[] = [];
-  
+
   // Income section
   data.push({ 'Type': 'INCOME', 'Account': '', 'Amount': '' });
   incomeAccounts.forEach(acc => {
@@ -47,7 +49,7 @@ export const exportPLToExcel = (incomeAccounts: any[], expenseAccounts: any[], t
   });
   data.push({ 'Type': '', 'Account': 'Total Income', 'Amount': totalIncome });
   data.push({ 'Type': '', 'Account': '', 'Amount': '' }); // Empty row
-  
+
   // Expense section
   data.push({ 'Type': 'EXPENSES', 'Account': '', 'Amount': '' });
   expenseAccounts.forEach(acc => {
@@ -59,20 +61,20 @@ export const exportPLToExcel = (incomeAccounts: any[], expenseAccounts: any[], t
   });
   data.push({ 'Type': '', 'Account': 'Total Expenses', 'Amount': totalExpenses });
   data.push({ 'Type': '', 'Account': '', 'Amount': '' }); // Empty row
-  
+
   // Net profit
   data.push({
     'Type': '',
     'Account': netProfit >= 0 ? 'Net Profit' : 'Net Loss',
     'Amount': Math.abs(netProfit),
   });
-  
+
   exportToExcel(data, `PL_Statement_${new Date().toISOString().split('T')[0]}`, 'P&L Statement');
 };
 
 export const exportGSTToExcel = (salesVouchers: any[], purchaseVouchers: any[], outputGST: number, inputGST: number, netGST: number, month: number, year: number) => {
   const data: any[] = [];
-  
+
   // Summary
   data.push({ 'Description': 'GST Report Summary', 'Value': '' });
   data.push({ 'Description': 'Month', 'Value': `${month}/${year}` });
@@ -80,7 +82,7 @@ export const exportGSTToExcel = (salesVouchers: any[], purchaseVouchers: any[], 
   data.push({ 'Description': 'Input GST (Purchases)', 'Value': inputGST });
   data.push({ 'Description': 'Net GST Liability', 'Value': netGST });
   data.push({ 'Description': '', 'Value': '' }); // Empty row
-  
+
   // Sales vouchers
   data.push({ 'Voucher': 'SALES VOUCHERS', 'Date': '', 'Party': '', 'GSTIN': '', 'Amount': '', 'GST': '', 'Total': '' });
   salesVouchers.forEach(v => {
@@ -95,7 +97,7 @@ export const exportGSTToExcel = (salesVouchers: any[], purchaseVouchers: any[], 
     });
   });
   data.push({ 'Voucher': '', 'Date': '', 'Party': '', 'GSTIN': '', 'Amount': '', 'GST': '', 'Total': '' }); // Empty row
-  
+
   // Purchase vouchers
   data.push({ 'Voucher': 'PURCHASE VOUCHERS', 'Date': '', 'Party': '', 'GSTIN': '', 'Amount': '', 'GST': '', 'Total': '' });
   purchaseVouchers.forEach(v => {
@@ -109,13 +111,13 @@ export const exportGSTToExcel = (salesVouchers: any[], purchaseVouchers: any[], 
       'Total': v.total,
     });
   });
-  
+
   exportToExcel(data, `GST_Report_${month}_${year}`, 'GST Report');
 };
 
 export const exportOutstandingToExcel = (receivables: any[], payables: any[], totalReceivable: number, totalPayable: number) => {
   const data: any[] = [];
-  
+
   // Receivables
   data.push({ 'Type': 'RECEIVABLES (Customers)', 'Party': '', 'GSTIN': '', 'Amount': '' });
   receivables.forEach(r => {
@@ -128,7 +130,7 @@ export const exportOutstandingToExcel = (receivables: any[], payables: any[], to
   });
   data.push({ 'Type': '', 'Party': 'Total Receivables', 'GSTIN': '', 'Amount': totalReceivable });
   data.push({ 'Type': '', 'Party': '', 'GSTIN': '', 'Amount': '' }); // Empty row
-  
+
   // Payables
   data.push({ 'Type': 'PAYABLES (Suppliers)', 'Party': '', 'GSTIN': '', 'Amount': '' });
   payables.forEach(p => {
@@ -140,17 +142,17 @@ export const exportOutstandingToExcel = (receivables: any[], payables: any[], to
     });
   });
   data.push({ 'Type': '', 'Party': 'Total Payables', 'GSTIN': '', 'Amount': totalPayable });
-  
+
   exportToExcel(data, `Outstanding_Report_${new Date().toISOString().split('T')[0]}`, 'Outstanding');
 };
 
 export const exportLedgerToExcel = (accountName: string, entries: any[], openingBalance: number, closingBalance: number) => {
   const data: any[] = [];
-  
+
   // Header
   data.push({ 'Date': 'Ledger Report', 'Voucher': accountName, 'Particulars': '', 'Debit': '', 'Credit': '', 'Balance': '' });
   data.push({ 'Date': '', 'Voucher': '', 'Particulars': '', 'Debit': '', 'Credit': '', 'Balance': '' });
-  
+
   // Opening balance
   data.push({
     'Date': '',
@@ -160,7 +162,7 @@ export const exportLedgerToExcel = (accountName: string, entries: any[], opening
     'Credit': '',
     'Balance': openingBalance,
   });
-  
+
   // Entries
   entries.forEach(entry => {
     data.push({
@@ -172,7 +174,7 @@ export const exportLedgerToExcel = (accountName: string, entries: any[], opening
       'Balance': entry.runningBalance,
     });
   });
-  
+
   // Closing balance
   data.push({
     'Date': '',
@@ -182,7 +184,7 @@ export const exportLedgerToExcel = (accountName: string, entries: any[], opening
     'Credit': '',
     'Balance': closingBalance,
   });
-  
+
   exportToExcel(data, `Ledger_${accountName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}`, 'Ledger');
 };
 
@@ -194,7 +196,7 @@ export const exportDayBookToExcel = (vouchers: any[], selectedDate: string) => {
     'Narration': v.narration || '-',
     'Amount': v.totalAmount,
   }));
-  
+
   const total = vouchers.reduce((sum, v) => sum + v.totalAmount, 0);
   data.push({
     'Voucher Number': '',
@@ -203,6 +205,66 @@ export const exportDayBookToExcel = (vouchers: any[], selectedDate: string) => {
     'Narration': 'TOTAL',
     'Amount': total,
   });
-  
+
   exportToExcel(data, `Day_Book_${selectedDate}`, 'Day Book');
+  exportToExcel(data, `Day_Book_${selectedDate}`, 'Day Book');
+};
+
+export const exportLedgerToPDF = (accountName: string, entries: any[], openingBalance: number, closingBalance: number) => {
+  const doc = new jsPDF();
+
+  // Title
+  doc.setFontSize(18);
+  doc.text(accountName, 14, 22);
+  doc.setFontSize(11);
+  doc.text(`Ledger Report`, 14, 30);
+  doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 36);
+
+  // Table Data
+  const tableData = entries.map(entry => [
+    new Date(entry.date).toLocaleDateString('en-IN'),
+    entry.voucher.voucherNumber,
+    entry.voucher.party?.name || 'Direct Entry',
+    entry.voucher.type,
+    entry.debit > 0 ? entry.debit.toFixed(2) : '',
+    entry.credit > 0 ? entry.credit.toFixed(2) : '',
+    entry.runningBalance.toFixed(2)
+  ]);
+
+  // Add Opening Balance Row
+  tableData.unshift([
+    '',
+    'Opening Balance',
+    '',
+    '',
+    '',
+    '',
+    openingBalance.toFixed(2)
+  ]);
+
+  // Add Closing Balance Row
+  tableData.push([
+    '',
+    'Closing Balance',
+    '',
+    '',
+    '',
+    '',
+    closingBalance.toFixed(2)
+  ]);
+
+  autoTable(doc, {
+    head: [['Date', 'Voucher', 'Particulars', 'Type', 'Debit', 'Credit', 'Balance']],
+    body: tableData,
+    startY: 44,
+    theme: 'grid',
+    headStyles: { fillColor: [66, 66, 66] },
+    columnStyles: {
+      4: { halign: 'right' },
+      5: { halign: 'right' },
+      6: { halign: 'right', fontStyle: 'bold' },
+    },
+  });
+
+  doc.save(`Ledger_${accountName.replace(/\s+/g, '_')}.pdf`);
 };
