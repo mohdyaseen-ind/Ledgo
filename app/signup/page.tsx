@@ -37,6 +37,7 @@ export default function SignupPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
+                credentials: 'include',
             });
 
             const data = await res.json();
@@ -45,8 +46,8 @@ export default function SignupPage() {
                 throw new Error(data.message || "Something went wrong");
             }
 
-            // Store token (in real app, maybe use httpOnly cookie or context)
-            localStorage.setItem("accessToken", data.accessToken);
+            // Token is now in HTTP-only cookie
+            // localStorage.setItem("accessToken", data.accessToken);
 
             // Update Redux state
             dispatch(setUser(data.user));

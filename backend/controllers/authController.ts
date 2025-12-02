@@ -100,6 +100,12 @@ export const signup = async (req: Request, res: Response) => {
       sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
     res.status(201).json({
       accessToken,
       user: {
@@ -138,6 +144,12 @@ export const login = async (req: Request, res: Response) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     res.json({
       accessToken,
@@ -184,6 +196,12 @@ export const refresh = async (req: Request, res: Response) => {
       sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
     res.json({ accessToken });
   } catch (error) {
     console.error("Refresh token error:", error);
@@ -202,6 +220,11 @@ export const logout = async (req: Request, res: Response) => {
     }
   }
   res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+  });
+  res.clearCookie('accessToken', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',

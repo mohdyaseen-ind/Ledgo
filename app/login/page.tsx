@@ -36,6 +36,7 @@ export default function LoginPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
+                credentials: 'include',
             });
 
             const data = await res.json();
@@ -44,8 +45,8 @@ export default function LoginPage() {
                 throw new Error(data.message || "Something went wrong");
             }
 
-            // Store token
-            localStorage.setItem("accessToken", data.accessToken);
+            // Token is now in HTTP-only cookie
+            // localStorage.setItem("accessToken", data.accessToken);
 
             // Update Redux state
             dispatch(setUser(data.user));
