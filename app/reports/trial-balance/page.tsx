@@ -3,6 +3,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { reportsAPI } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ interface TrialBalanceData {
 }
 
 export default function TrialBalancePage() {
+  const router = useRouter();
   const [data, setData] = useState<TrialBalanceData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -151,7 +153,11 @@ export default function TrialBalancePage() {
               </thead>
               <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-gray-700">
                 {trialBalance.map((entry) => (
-                  <tr key={entry.accountId} className="hover:bg-gray-50 dark:hover:bg-slate-800">
+                  <tr
+                    key={entry.accountId}
+                    className="hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer"
+                    onClick={() => router.push(`/ledgers/${entry.accountId}`)}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                       {entry.accountName}
                     </td>

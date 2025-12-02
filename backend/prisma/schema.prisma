@@ -58,6 +58,7 @@ model Voucher {
   id            String    @id @default(cuid())
   userId        String
   voucherNumber String
+  title         String?
   type          String // "SALES", "PURCHASE", "PAYMENT", "RECEIPT"
   date          DateTime
   partyId       String? // Which customer/supplier (optional for direct expenses)

@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { accountsAPI, vouchersAPI } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -24,11 +24,16 @@ interface Item {
 
 export default function PurchaseVoucherPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
   const [loading, setLoading] = useState(false);
   const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [isCreatingParty, setIsCreatingParty] = useState(false);
+  const [newParty, setNewParty] = useState({ name: '', gstNumber: '' });
 
   // Form state
   const [date, setDate] = useState(formatDateInput(new Date()));
+  const [title, setTitle] = useState('');
   const [partyId, setPartyId] = useState('');
   const [narration, setNarration] = useState('');
   const [items, setItems] = useState<Item[]>([
@@ -49,8 +54,34 @@ export default function PurchaseVoucherPage() {
 
   useEffect(() => {
     fetchSuppliers();
-    setTimeout(() => partyRef.current?.focus(), 100);
-  }, []);
+    if (id) {
+      fetchVoucher(id);
+    } else {
+      setTimeout(() => partyRef.current?.focus(), 100);
+    }
+  }, [id]);
+
+  const fetchVoucher = async (voucherId: string) => {
+    try {
+      setLoading(true);
+      const data = await vouchersAPI.getById(voucherId);
+      setDate(formatDateInput(new Date(data.date)));
+      setTitle(data.title || '');
+      setPartyId(data.partyId);
+      setNarration(data.narration || '');
+      if (data.items && data.items.length > 0) {
+        setItems(data.items.map((item: any) => ({
+          ...item,
+          id: item.id || Date.now().toString(),
+        })));
+      }
+    } catch (error) {
+      console.error('Error fetching voucher:', error);
+      alert('Failed to load voucher');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchSuppliers = async () => {
     try {
@@ -59,6 +90,26 @@ export default function PurchaseVoucherPage() {
       setSuppliers(data);
     } catch (error) {
       console.error('Error fetching suppliers:', error);
+    }
+  };
+
+  const handleCreateParty = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const data = await accountsAPI.create({
+        name: newParty.name,
+        type: 'LIABILITY', // Supplier is Liability
+        isParty: true,
+        gstNumber: newParty.gstNumber,
+        openingBalance: 0,
+      });
+      setSuppliers([...suppliers, data]);
+      setPartyId(data.id);
+      setIsCreatingParty(false);
+      setNewParty({ name: '', gstNumber: '' });
+    } catch (error) {
+      console.error('Error creating party:', error);
+      alert('Failed to create supplier');
     }
   };
 
@@ -127,16 +178,25 @@ export default function PurchaseVoucherPage() {
 
     try {
       setLoading(true);
-      await vouchersAPI.create({
+      setLoading(true);
+      const voucherData = {
         type: 'PURCHASE',
         date,
+        title,
         partyId,
         narration,
         items: items.map(({ id, ...item }) => item),
         amount: totalAmount,
-      });
+      };
 
-      alert('Purchase voucher created successfully!');
+      if (id) {
+        await vouchersAPI.update(id, voucherData);
+        alert('Purchase voucher updated successfully!');
+      } else {
+        await vouchersAPI.create(voucherData);
+        alert('Purchase voucher created successfully!');
+      }
+
       router.push('/vouchers');
     } catch (error) {
       console.error('Error creating voucher:', error);
@@ -175,8 +235,8 @@ export default function PurchaseVoucherPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Purchase Voucher</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">Record purchases from suppliers</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{id ? 'Edit Purchase Voucher' : 'Purchase Voucher'}</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">{id ? 'Update existing purchase' : 'Record purchases from suppliers'}</p>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -185,18 +245,40 @@ export default function PurchaseVoucherPage() {
             <CardTitle className="text-gray-900 dark:text-white">Voucher Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Select
-                  ref={partyRef}
-                  label="Supplier *"
-                  value={partyId}
-                  onChange={(e) => setPartyId(e.target.value)}
-                  options={[
-                    { value: '', label: 'Select Supplier' },
-                    ...suppliers.map((p) => ({ value: p.id, label: p.name })),
-                  ]}
-                  required
+                <div className="flex items-end gap-2">
+                  <div className="flex-1">
+                    <Select
+                      ref={partyRef}
+                      label="Supplier *"
+                      value={partyId}
+                      onChange={(e) => setPartyId(e.target.value)}
+                      options={[
+                        { value: '', label: 'Select Supplier' },
+                        ...suppliers.map((p) => ({ value: p.id, label: p.name })),
+                      ]}
+                      required
+                      className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setIsCreatingParty(true)}
+                    className="mb-[2px] px-3"
+                    title="Create New Supplier"
+                  >
+                    +
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Input
+                  label="Title / Reference"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Bill #456"
                   className="bg-white dark:bg-slate-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
@@ -357,7 +439,7 @@ export default function PurchaseVoucherPage() {
                       Saving...
                     </span>
                   ) : (
-                    'Save Voucher'
+                    id ? 'Update Voucher' : 'Save Voucher'
                   )}
                 </Button>
               </div>
@@ -365,6 +447,41 @@ export default function PurchaseVoucherPage() {
           </CardContent>
         </Card>
       </form>
+
+      {/* Create Party Modal */}
+      {isCreatingParty && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg w-96 shadow-xl border border-gray-200 dark:border-gray-700 animate-in fade-in zoom-in duration-200">
+            <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">New Supplier</h3>
+            <form onSubmit={handleCreateParty} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+                <Input
+                  value={newParty.name}
+                  onChange={(e) => setNewParty({ ...newParty, name: e.target.value })}
+                  required
+                  autoFocus
+                  placeholder="Supplier Name"
+                  className="bg-white dark:bg-slate-800"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GST Number</label>
+                <Input
+                  value={newParty.gstNumber}
+                  onChange={(e) => setNewParty({ ...newParty, gstNumber: e.target.value })}
+                  placeholder="Optional"
+                  className="bg-white dark:bg-slate-800"
+                />
+              </div>
+              <div className="flex justify-end space-x-2 pt-2">
+                <Button type="button" variant="ghost" onClick={() => setIsCreatingParty(false)}>Cancel</Button>
+                <Button type="submit">Create Supplier</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

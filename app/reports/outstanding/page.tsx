@@ -3,6 +3,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { reportsAPI } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ interface OutstandingData {
 }
 
 export default function OutstandingPage() {
+  const router = useRouter();
   const [data, setData] = useState<OutstandingData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -153,7 +155,11 @@ export default function OutstandingPage() {
                 {receivables
                   .sort((a, b) => b.balance - a.balance)
                   .map((party) => (
-                    <div key={party.id} className="px-4 py-4 hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer">
+                    <div
+                      key={party.id}
+                      className="px-4 py-4 hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer"
+                      onClick={() => router.push(`/ledgers/${party.id}`)}
+                    >
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium text-gray-900 dark:text-white">{party.name}</p>
@@ -200,7 +206,11 @@ export default function OutstandingPage() {
                 {payables
                   .sort((a, b) => b.balance - a.balance)
                   .map((party) => (
-                    <div key={party.id} className="px-4 py-4 hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer">
+                    <div
+                      key={party.id}
+                      className="px-4 py-4 hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer"
+                      onClick={() => router.push(`/ledgers/${party.id}`)}
+                    >
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium text-gray-900 dark:text-white">{party.name}</p>

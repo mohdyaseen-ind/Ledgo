@@ -3,6 +3,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { reportsAPI } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ interface PLData {
 }
 
 export default function PLPage() {
+  const router = useRouter();
   const [data, setData] = useState<PLData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -201,7 +203,11 @@ export default function PLPage() {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {incomeAccounts.length > 0 ? (
                   incomeAccounts.map((account) => (
-                    <tr key={account.accountId} className="hover:bg-gray-50 dark:hover:bg-slate-800">
+                    <tr
+                      key={account.accountId}
+                      className="hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer"
+                      onClick={() => router.push(`/ledgers/${account.accountId}`)}
+                    >
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{account.accountName}</td>
                       <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white truncate" title={formatCurrency(account.amount)}>
                         {formatLargeCurrency(account.amount)}
@@ -248,7 +254,11 @@ export default function PLPage() {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {expenseAccounts.length > 0 ? (
                   expenseAccounts.map((account) => (
-                    <tr key={account.accountId} className="hover:bg-gray-50 dark:hover:bg-slate-800">
+                    <tr
+                      key={account.accountId}
+                      className="hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer"
+                      onClick={() => router.push(`/ledgers/${account.accountId}`)}
+                    >
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{account.accountName}</td>
                       <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white truncate" title={formatCurrency(account.amount)}>
                         {formatLargeCurrency(account.amount)}

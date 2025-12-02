@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 // Helpers
 const generateAccessToken = (userId: string) =>
-  jwt.sign({ userId }, process.env.JWT_SECRET as string, { expiresIn: '15m' });
+  jwt.sign({ userId }, process.env.JWT_SECRET as string, { expiresIn: '7d' });
 
 const generateRefreshTokenString = () => crypto.randomBytes(64).toString('hex');
 
@@ -88,7 +88,7 @@ export const signup = async (req: Request, res: Response) => {
 
     const accessToken = generateAccessToken(newUser.id);
     const refreshToken = generateRefreshTokenString();
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
     await prisma.refreshToken.create({
       data: { token: refreshToken, userId: newUser.id, expiresAt },
@@ -98,7 +98,7 @@ export const signup = async (req: Request, res: Response) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     res.status(201).json({
       accessToken,
@@ -127,7 +127,7 @@ export const login = async (req: Request, res: Response) => {
 
     const accessToken = generateAccessToken(user.id);
     const refreshToken = generateRefreshTokenString();
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
     await prisma.refreshToken.create({
       data: { token: refreshToken, userId: user.id, expiresAt },
@@ -137,7 +137,7 @@ export const login = async (req: Request, res: Response) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     res.json({
       accessToken,
@@ -172,7 +172,7 @@ export const refresh = async (req: Request, res: Response) => {
     // Optional: Rotate refresh token
     await prisma.refreshToken.delete({ where: { token: refreshToken } });
     const newRefreshToken = generateRefreshTokenString();
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     await prisma.refreshToken.create({
       data: { token: newRefreshToken, userId: tokenRecord.user.id, expiresAt },
     });
@@ -182,7 +182,7 @@ export const refresh = async (req: Request, res: Response) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     res.json({ accessToken });
   } catch (error) {

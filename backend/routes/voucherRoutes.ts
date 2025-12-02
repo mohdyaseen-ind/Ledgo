@@ -6,6 +6,7 @@ import {
   getVouchers,
   getVoucher,
   deleteVoucher,
+  updateVoucher,
 } from '../controllers/voucherController';
 
 const router = Router();
@@ -21,5 +22,8 @@ router.get('/:id', getVoucher);
 
 // DELETE /api/vouchers/:id - Delete voucher
 router.delete('/:id', deleteVoucher);
+
+// PUT /api/vouchers/:id - Update voucher
+router.put('/:id', updateVoucher);
 
 export default router;

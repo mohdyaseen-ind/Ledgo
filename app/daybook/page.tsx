@@ -3,6 +3,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { vouchersAPI } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,7 @@ interface Voucher {
 }
 
 export default function DayBookPage() {
+  const router = useRouter();
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(formatDateInput(new Date()));
@@ -220,7 +222,11 @@ export default function DayBookPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {vouchers.map((voucher) => (
-                    <tr key={voucher.id} className="hover:bg-gray-50 dark:hover:bg-slate-800">
+                    <tr
+                      key={voucher.id}
+                      className="hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer"
+                      onClick={() => router.push(`/vouchers/${voucher.id}`)}
+                    >
                       <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
                         {voucher.voucherNumber}
                       </td>

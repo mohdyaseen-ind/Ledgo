@@ -23,6 +23,12 @@ async function fetchAPI(endpoint: string, options?: RequestInit) {
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken');
+        window.location.href = '/login';
+      }
+    }
     const error = await response.json();
     throw new Error(error.message || 'API request failed');
   }
@@ -50,11 +56,14 @@ export const accountsAPI = {
 
 // VOUCHERS
 export const vouchersAPI = {
-  getAll: (params?: { type?: string; startDate?: string; endDate?: string }) => {
+  getAll: (params?: { type?: string; startDate?: string; endDate?: string; search?: string; page?: number; limit?: number }) => {
     const query = new URLSearchParams();
     if (params?.type) query.append('type', params.type);
     if (params?.startDate) query.append('startDate', params.startDate);
     if (params?.endDate) query.append('endDate', params.endDate);
+    if (params?.search) query.append('search', params.search);
+    if (params?.page) query.append('page', String(params.page));
+    if (params?.limit) query.append('limit', String(params.limit));
     return fetchAPI(`/vouchers?${query.toString()}`);
   },
 
@@ -69,6 +78,12 @@ export const vouchersAPI = {
   delete: (id: string) =>
     fetchAPI(`/vouchers/${id}`, {
       method: 'DELETE',
+    }),
+
+  update: (id: string, data: any) =>
+    fetchAPI(`/vouchers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
     }),
 };
 

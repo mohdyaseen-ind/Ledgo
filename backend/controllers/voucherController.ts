@@ -19,6 +19,7 @@ export const createVoucher = async (req: Request, res: Response) => {
   try {
     const {
       type,
+      title,
       date,
       partyId,
       narration,
@@ -148,6 +149,7 @@ export const createVoucher = async (req: Request, res: Response) => {
         data: {
           userId,
           voucherNumber,
+          title,
           type,
           date: new Date(date),
           partyId,
@@ -197,8 +199,10 @@ export const createVoucher = async (req: Request, res: Response) => {
 // GET ALL VOUCHERS
 export const getVouchers = async (req: Request, res: Response) => {
   try {
-    const { type, startDate, endDate } = req.query;
+    const { type, startDate, endDate, search, page = 1, limit = 10 } = req.query;
     const userId = (req as any).user.userId;
+    const skip = (Number(page) - 1) * Number(limit);
+    const take = Number(limit);
 
     const where: any = {
       userId,
@@ -213,18 +217,39 @@ export const getVouchers = async (req: Request, res: Response) => {
       };
     }
 
-    const vouchers = await prisma.voucher.findMany({
-      where,
-      include: {
-        party: true,
-        items: true,
-      },
-      orderBy: {
-        date: 'desc',
+    if (search) {
+      where.OR = [
+        { voucherNumber: { contains: search as string } },
+        { title: { contains: search as string } },
+        { party: { name: { contains: search as string } } },
+      ];
+    }
+
+    const [vouchers, total] = await prisma.$transaction([
+      prisma.voucher.findMany({
+        where,
+        include: {
+          party: true,
+          items: true,
+        },
+        orderBy: {
+          date: 'desc',
+        },
+        skip,
+        take,
+      }),
+      prisma.voucher.count({ where }),
+    ]);
+
+    res.json({
+      data: vouchers,
+      meta: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit)),
       },
     });
-
-    res.json(vouchers);
   } catch (error) {
     console.error('Error fetching vouchers:', error);
     res.status(500).json({ error: 'Failed to fetch vouchers' });
@@ -288,5 +313,144 @@ export const deleteVoucher = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error deleting voucher:', error);
     res.status(500).json({ error: 'Failed to delete voucher' });
+  }
+};
+
+// UPDATE VOUCHER
+export const updateVoucher = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      date,
+      partyId,
+      narration,
+      items,
+      bankAccountId,
+      expenseAccountId,
+      incomeAccountId,
+    } = req.body;
+    const userId = (req as any).user.userId;
+
+    // 1. Verify existence and ownership
+    const existingVoucher = await prisma.voucher.findFirst({
+      where: { id, userId, isDeleted: false },
+    });
+
+    if (!existingVoucher) {
+      return res.status(404).json({ error: 'Voucher not found' });
+    }
+
+    const type = existingVoucher.type; // Keep original type
+
+    // 2. Calculate new totals
+    let totalAmount = 0;
+    let baseAmount = 0;
+    let gstAmount = 0;
+
+    if (items && items.length > 0) {
+      items.forEach((item: any) => {
+        const itemAmount = item.quantity * item.rate;
+        const itemGst = (itemAmount * item.gstRate) / 100;
+        item.amount = itemAmount;
+        item.gstAmount = itemGst;
+        item.total = itemAmount + itemGst;
+
+        baseAmount += itemAmount;
+        gstAmount += itemGst;
+        totalAmount += item.total;
+      });
+    } else {
+      totalAmount = req.body.amount || 0;
+    }
+
+    // 3. Get accounts (scoped to user or global)
+    const salesAccount = await prisma.account.findFirst({
+      where: { name: 'Sales Account', OR: [{ userId }, { userId: null }] }
+    });
+    const purchaseAccount = await prisma.account.findFirst({
+      where: { name: 'Purchase Account', OR: [{ userId }, { userId: null }] }
+    });
+    const outputGstAccount = await prisma.account.findFirst({
+      where: { name: 'Output GST', OR: [{ userId }, { userId: null }] }
+    });
+    const inputGstAccount = await prisma.account.findFirst({
+      where: { name: 'Input GST', OR: [{ userId }, { userId: null }] }
+    });
+
+    // 4. Generate new ledger entries
+    let ledgerEntries: any[] = [];
+
+    switch (type) {
+      case 'SALES':
+        if (!salesAccount || !outputGstAccount) return res.status(400).json({ error: 'Sales/GST accounts missing' });
+        ledgerEntries = AccountingEngine.createSalesEntries(partyId, totalAmount, baseAmount, gstAmount, salesAccount.id, outputGstAccount.id);
+        break;
+      case 'PURCHASE':
+        if (!purchaseAccount || !inputGstAccount) return res.status(400).json({ error: 'Purchase/GST accounts missing' });
+        ledgerEntries = AccountingEngine.createPurchaseEntries(partyId, totalAmount, baseAmount, gstAmount, purchaseAccount.id, inputGstAccount.id);
+        break;
+      case 'PAYMENT':
+        ledgerEntries = AccountingEngine.createPaymentEntries(bankAccountId, totalAmount, partyId, expenseAccountId);
+        break;
+      case 'RECEIPT':
+        ledgerEntries = AccountingEngine.createReceiptEntries(bankAccountId, totalAmount, partyId, incomeAccountId);
+        break;
+    }
+
+    // 5. Validate entries
+    if (!AccountingEngine.validateEntries(ledgerEntries)) {
+      return res.status(400).json({ error: 'Ledger entries do not balance' });
+    }
+
+    // 6. Transaction: Delete old, Update voucher, Create new
+    const updatedVoucher = await prisma.$transaction(async (tx: any) => {
+      await tx.voucherItem.deleteMany({ where: { voucherId: id } });
+      await tx.ledgerEntry.deleteMany({ where: { voucherId: id } });
+
+      const voucher = await tx.voucher.update({
+        where: { id },
+        data: {
+          title,
+          date: new Date(date),
+          partyId,
+          narration,
+          totalAmount,
+        },
+      });
+
+      if (items && items.length > 0) {
+        await tx.voucherItem.createMany({
+          data: items.map((item: any) => ({
+            voucherId: voucher.id,
+            description: item.description,
+            quantity: parseFloat(item.quantity),
+            rate: parseFloat(item.rate),
+            amount: parseFloat(item.amount),
+            gstRate: parseFloat(item.gstRate),
+            gstAmount: parseFloat(item.gstAmount),
+            total: parseFloat(item.total),
+          })),
+        });
+      }
+
+      await tx.ledgerEntry.createMany({
+        data: ledgerEntries.map((entry: any) => ({
+          userId,
+          voucherId: voucher.id,
+          accountId: entry.accountId,
+          date: new Date(date),
+          debit: entry.debit,
+          credit: entry.credit,
+        })),
+      });
+
+      return voucher;
+    });
+
+    res.json(updatedVoucher);
+  } catch (error) {
+    console.error('Error updating voucher:', error);
+    res.status(500).json({ error: 'Failed to update voucher' });
   }
 };

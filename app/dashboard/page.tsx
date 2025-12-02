@@ -39,10 +39,13 @@ export default function DashboardPage() {
       const startOfSixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
       // Fetch all vouchers for last 6 months (for trend)
-      const allVouchers = await vouchersAPI.getAll({
+      const response = await vouchersAPI.getAll({
         startDate: startOfSixMonthsAgo.toISOString().split('T')[0],
         endDate: endOfMonth.toISOString().split('T')[0],
+        limit: 10000,
       });
+
+      const allVouchers = Array.isArray(response) ? response : response.data;
 
       // Filter for current month (for key metrics)
       const currentMonthVouchers = allVouchers.filter((v: any) => new Date(v.date) >= startOfMonth);
@@ -65,10 +68,14 @@ export default function DashboardPage() {
       // Get GST
       const gstData = await reportsAPI.gst(now.getMonth() + 1, now.getFullYear());
 
-      // Get bank balance
-      const accounts = await accountsAPI.getAll({ type: 'ASSET' });
-      const bankAccount = accounts.find((acc: any) => acc.name.toLowerCase().includes('bank'));
-      const cashBalance = bankAccount ? bankAccount.openingBalance : 0;
+      // Get bank/cash balance via Trial Balance
+      const tbData = await reportsAPI.trialBalance();
+      const cashBalance = tbData.trialBalance
+        .filter((acc: any) => {
+          const name = acc.accountName.toLowerCase();
+          return (name.includes('bank') || name.includes('cash')) && acc.accountType === 'ASSET';
+        })
+        .reduce((sum: number, acc: any) => sum + (acc.debit - acc.credit), 0);
 
       // Generate sales trend from real data
       const salesTrend = generateSalesTrend(allVouchers);
