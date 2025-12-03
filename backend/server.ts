@@ -20,7 +20,7 @@ app.use(cookieParser());
 app.use(cors({
   origin: [
     "http://localhost:3001",
-    "https://ledgo-erp.vercel.app",
+    "https://ledgo-pi.vercel.app",
     "http://localhost:3000",
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
