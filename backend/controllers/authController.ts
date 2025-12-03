@@ -3,6 +3,9 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const prisma = new PrismaClient();
 
@@ -127,7 +130,7 @@ export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   try {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+    if (!user || !user.passwordHash || !(await bcrypt.compare(password, user.passwordHash))) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
@@ -164,6 +167,100 @@ export const login = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: 'Error logging in', error });
+  }
+};
+
+// Google Login
+export const googleLogin = async (req: Request, res: Response) => {
+  const { token } = req.body;
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    if (!payload) return res.status(400).json({ message: 'Invalid token' });
+
+    const { email, name, sub: googleId, picture } = payload;
+
+    if (!email) return res.status(400).json({ message: 'Email not found in token' });
+
+    let user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      // Create new user
+      user = await prisma.$transaction(async (tx) => {
+        const newUser = await tx.user.create({
+          data: {
+            name: name || 'User',
+            email,
+            googleId,
+            avatarUrl: picture,
+            role: 'USER',
+            passwordHash: null, // No password for Google users
+          }
+        });
+        // Create default accounts
+        const defaults = [
+          { name: 'Cash in Hand', type: 'ASSET', openingBalance: 0 },
+          { name: 'Bank Account', type: 'ASSET', openingBalance: 0 },
+          { name: 'Sales Account', type: 'INCOME' },
+          { name: 'Purchase Account', type: 'EXPENSE' },
+          { name: 'Output GST', type: 'LIABILITY' },
+          { name: 'Input GST', type: 'ASSET' },
+          { name: 'Capital Account', type: 'LIABILITY' },
+          { name: 'General Expense', type: 'EXPENSE' },
+        ];
+        await tx.account.createMany({
+          data: defaults.map(acc => ({ ...acc, userId: newUser.id })),
+        });
+        return newUser;
+      });
+    } else if (!user.googleId) {
+      // Link Google account to existing email
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { googleId, avatarUrl: user.avatarUrl || picture },
+      });
+    }
+
+    // Generate tokens
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshTokenString();
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    await prisma.refreshToken.create({
+      data: { token: refreshToken, userId: user.id, expiresAt },
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({
+      accessToken,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatarUrl: user.avatarUrl
+      },
+      message: 'Google login successful'
+    });
+
+  } catch (error) {
+    console.error("Google login error:", error);
+    res.status(500).json({ message: 'Error logging in with Google', error });
   }
 };
 

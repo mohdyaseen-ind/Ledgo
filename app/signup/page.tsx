@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { setUser } from "@/store/slices/userSlice";
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function SignupPage() {
     const router = useRouter();
@@ -27,13 +28,32 @@ export default function SignupPage() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleGoogleSuccess = async (credentialResponse: any) => {
+        try {
+            const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+            const res = await fetch(`${API_BASE_URL}/api/auth/google`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: credentialResponse.credential }),
+                credentials: 'include',
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message);
+            dispatch(setUser(data.user));
+            router.push("/");
+        } catch (err: any) {
+            setError(err.message);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError("");
 
         try {
-            const res = await fetch("http://localhost:3001/api/auth/signup", {
+            const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+            const res = await fetch(`${API_BASE_URL}/api/auth/signup`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
@@ -140,6 +160,24 @@ export default function SignupPage() {
                                 "Sign Up"
                             )}
                         </Button>
+
+                        <div className="relative my-4">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-gray-700" />
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-gray-900 px-2 text-gray-400">Or sign up with</span>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-center">
+                            <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={() => setError("Google Login Failed")}
+                                theme="filled_black"
+                                shape="pill"
+                            />
+                        </div>
                     </form>
                 </CardContent>
                 <CardFooter>

@@ -14,7 +14,8 @@ model User {
   email         String         @unique
   role          String
   createdAt     DateTime       @default(now())
-  passwordHash  String
+  passwordHash  String?
+  googleId      String?        @unique
   phone         String?
   address       String?
   bio           String?        @db.Text
