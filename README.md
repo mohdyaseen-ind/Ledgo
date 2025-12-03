@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+1. Ledgo ERP — The Best ERP Till Date (India Focus)
+2. Problem Statement
+Managing business operations and accounting efficiently in India often relies on tools like Tally ERP, favored by accountants due to their keyboard-first interface and customizable shortcuts. However, these platforms lack modern UIs and are less accessible to managers or CTOs looking for data insights and collaboration. Ledgo ERP bridges this gap by offering:
+A powerful keyboard-first experience for accountants.
+An intuitive, feature-rich UI for managers and CTOs.
+Built-in AI-powered chatbots for fast support, queries, and automation.
+Centralized platform for business management and finance.
+3. System Architecture
+Frontend: React.js with React Router for page navigation; custom keyboard shortcut management for all workflows; dynamic UI components for dashboards, reports, and approvals.
+Backend (API): Node.js with Express.js; Prisma ORM for database modeling; RESTful API endpoints.
+Database: MySQL (relational, scalable); Prisma acts as the ORM layer.
+Authentication: JWT-based login/signup; role-based access (Accountant, Manager, CTO, Admin).
+Chatbot/AI Integration: OpenAI or Claude API for ERP and accounting assistance.
+Hosting:
+Frontend → Vercel/Netlify
+Backend → Render/Railway
+Database → PlanetScale/MySQL Cloud
+4. Key Features
+Category
+Features
+Authentication
+User registration, login, logout, strong role-based access (Accountant/Manager/Admin/CTO)
+Keyboard Shortcuts
+Configure core actions (add voucher, ledger search, transaction entry) via keyboard flows
+CRUD Operations
+Create, read, update, delete for core entities (accounts, vouchers, products, users)
+Powerful UI
+Interactive dashboards, approval workflow, analytics, filtering, sorting, search
+AI/Chatbot
+Chatbot for support, quick queries (find account, summarize sales, search transaction)
+Frontend Routing
+Home, Login, Dashboard, Ledger Details, User Roles, Profile, Reports, etc.
+Data Management
+Robust pagination, filtering, advanced search, audit logs
+Hosting
+Publicly accessible backend and frontend URLs
 
-## Getting Started
+5. Tech Stack
+Layer
+Technologies
+Frontend
+React.js, React Router, Axios, TailwindCSS/Bootstrap, shortcut lib
+Backend
+Node.js, Express.js, Prisma ORM
+Database
+MySQL, PlanetScale
+Authentication
+JWT, OAuth (future scaling), RBAC
+AI & Chatbot
+OpenAI API, Claude API
+Hosting
+Vercel, Render, Netlify, Railway
 
-First, run the development server:
+6. API Overview (Sample)
+Endpoint
+Method
+Description
+Access
+/api/auth/signup
+POST
+Register new user
+Public
+/api/auth/login
+POST
+Authenticate user
+Public
+/api/accounts
+GET
+List all accounts
+Authenticated
+/api/vouchers
+POST
+Add new voucher/transaction
+Accountant/Admin
+/api/ledger/:id
+GET
+View ledger details
+Authenticated
+/api/ledger/:id
+PUT
+Update ledger entry
+Accountant/Admin
+/api/ledger/:id
+DELETE
+Delete ledger entry
+Admin only
+/api/chatbot/query
+POST
+Query AI chatbot for ERP/accounting help
+All roles
+/api/users/:id
+PUT
+Update user profile/role
+Admin only
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
